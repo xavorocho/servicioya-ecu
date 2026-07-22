@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       String   @default("cliente")
+  phone      String   @default("")
+  city       String   @default("")
+  status     String   @default("Activo")
+  providerId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  name        String
+  description String   @default("")
+  icon        String   @default("")
+  color       String   @default("from-blue-500 to-cyan-500")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  providers Provider[]
+}
+
+model Provider {
+  id            String   @id @default(uuid())
+  legacyId      Int?
+  userEmail     String   @unique
+  name          String
+  category      String
+  categoryName  String
+  city          String
+  sector        String   @default("")
+  rating        Float    @default(0)
+  reviews       Int      @default(0)
+  price         Float    @default(0)
+  available     Boolean  @default(false)
+  verified      Boolean  @default(false)
+  status        String   @default("Pendiente")
+  color         String   @default("avatar-cyan")
+  experience    String   @default("")
+  phone         String   @default("")
+  description   String   @default("")
+  services      String   @default("[]")
+  documents     String   @default("{}")
+  comments      String   @default("[]")
+  categoryId    String?
+  experienceYears Int    @default(0)
+  baseReferencePrice Float @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders          Request[]
+  quotes          Quote[]
+  providerDocs    ProviderDocument[]
+  payments        Payment[]
+  reviewsReceived Review[]
+
+  categoryRel Category? @relation(fields: [categoryId], references: [id])
+}
+
+model ProviderDocument {
+  id           String   @id @default(uuid())
+  providerId   String
+  documentType String
+  filePath     String
+  originalName String
+  reviewStatus String   @default("Pendiente")
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  rejectionReason String?
+  uploadedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id])
+}
+
+model Request {
+  id               String   @id @default(uuid())
+  displayId        String   @unique
+  clientEmail      String
+  client           String
+  providerId       String
+  providerName     String
+  service          String
+  categoryId       String?
+  city             String   @default("")
+  address          String   @default("")
+  description      String   @default("")
+  phone            String   @default("")
+  preferredDate    String   @default("")
+  preferredTimeRange String @default("")
+  status           String   @default("pendiente_cotizacion")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  provider   Provider?    @relation(fields: [providerId], references: [id])
+  quotes     Quote[]
+  payments   Payment[]
+  reviews    Review[]
+}
+
+model Quote {
+  id                    String   @id @default(uuid())
+  requestId             String
+  providerId            String
+  laborPrice            Float    @default(0)
+  materialsPrice        Float    @default(0)
+  totalWithMaterials    Float    @default(0)
+  totalWithoutMaterials Float    @default(0)
+  materialsDetail       String   @default("")
+  providerNote          String   @default("")
+  providerExactTime     String   @default("")
+  status                String   @default("enviada")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  request        Request?          @relation(fields: [requestId], references: [id])
+  provider       Provider?         @relation(fields: [providerId], references: [id])
+  timeProposals  TimeProposal[]
+  payments       Payment[]
+}
+
+model TimeProposal {
+  id           String   @id @default(uuid())
+  quoteId      String
+  proposedBy   String
+  proposedTime String
+  status       String   @default("pendiente")
+  note         String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  quote Quote? @relation(fields: [quoteId], references: [id])
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  requestId      String
+  quoteId        String?
+  clientEmail    String
+  providerId     String
+  amount         Float
+  platformFee    Float    @default(0)
+  paymentMethod  String   @default("payphone")
+  paymentStatus  String   @default("pendiente")
+  transactionId  String?
+  description    String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  request  Request?   @relation(fields: [requestId], references: [id])
+  quote    Quote?     @relation(fields: [quoteId], references: [id])
+  provider Provider?  @relation(fields: [providerId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  requestId  String
+  clientEmail String
+  providerId String
+  rating     Int
+  comment    String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  request  Request?  @relation(fields: [requestId], references: [id])
+  provider Provider? @relation(fields: [providerId], references: [id])
+}
