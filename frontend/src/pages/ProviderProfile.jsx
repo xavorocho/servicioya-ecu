@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
 import { Icon, Breadcrumb, StatusBadge, Avatar } from "../components/UI/helpers";
+import { getFileUrl } from "../utils/files";
 
 export default function ProviderProfile() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ export default function ProviderProfile() {
       <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
         <div className="space-y-5">
           <article className="bg-white rounded-xl border border-gray-200 p-5 sm:p-6 flex flex-col sm:flex-row gap-4 shadow-sm">
-            <Avatar name={provider.name} className="w-16 h-16 rounded-2xl text-lg" />
+            {provider.profileImage ? <img src={getFileUrl(provider.profileImage)} alt={`Foto de ${provider.name}`} className="w-16 h-16 rounded-2xl object-cover" /> : <Avatar name={provider.name} className="w-16 h-16 rounded-2xl text-lg" />}
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-xl font-extrabold text-gray-900">{provider.name}</h1>

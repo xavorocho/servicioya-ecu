@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 // POST /api/support - Send a support message (any authenticated user)
 router.post("/", authenticate, async (req, res) => {
   try {
-    const { subject, message } = req.body;
+    const { subject, message, priority } = req.body;
     if (!subject || !message) return res.status(400).json({ error: "Asunto y mensaje requeridos" });
     
     const supportMessage = await prisma.supportMessage.create({
@@ -20,12 +20,24 @@ router.post("/", authenticate, async (req, res) => {
         subject,
         message,
         status: "nuevo",
+        priority: ["baja", "media", "alta", "urgente"].includes(priority) ? priority : "media",
       },
     });
     res.status(201).json(supportMessage);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.get("/mine", authenticate, async (req, res) => {
+  const messages = await prisma.supportMessage.findMany({ where: { userId: req.user.id }, orderBy: { createdAt: "desc" } });
+  res.json(messages);
+});
+
+router.put("/:id/status", authenticate, authorize("admin"), async (req, res) => {
+  const allowed = ["nuevo", "en_revision", "respondido", "cerrado"];
+  if (!allowed.includes(req.body.status)) return res.status(400).json({ error: "Estado inválido" });
+  res.json(await prisma.supportMessage.update({ where: { id: req.params.id }, data: { status: req.body.status } }));
 });
 
 // GET /api/support - Get all support messages (admin only)
@@ -53,6 +65,7 @@ router.put("/:id/respond", authenticate, authorize("admin"), async (req, res) =>
         respondedBy: req.user.email,
       },
     });
+    await prisma.notification.create({ data: { userEmail: message.userEmail, title: "Respuesta de soporte", message: response || "Tu solicitud de soporte fue actualizada.", type: "support", link: "/ayuda" } });
     res.json(message);
   } catch (err) {
     res.status(500).json({ error: err.message });

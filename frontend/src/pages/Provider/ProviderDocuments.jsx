@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../components/UI/Toast";
 import api from "../../api/client";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
+import { getFileUrl } from "../../utils/files";
 
 export default function ProviderDocuments() {
   const { user, updateUser } = useAuth();
@@ -19,7 +20,7 @@ export default function ProviderDocuments() {
     const fd = new FormData();
     fd.append(field, file);
     try {
-      const { data } = await api.put("/providers/register", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const { data } = await api.put("/providers/me/files", fd, { headers: { "Content-Type": "multipart/form-data" } });
       setProvider(data);
       showToast("Documento subido correctamente.");
     } catch (err) {
@@ -65,8 +66,8 @@ export default function ProviderDocuments() {
           <div>
             <label className="text-xs font-semibold text-gray-700 mb-2 block">Foto frontal</label>
             <div className="aspect-square rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden relative">
-              {provider?.documents?.fotoFrontal ? (
-                <img src={provider.documents.fotoFrontal.startsWith("http") ? provider.documents.fotoFrontal : `/api/uploads/${provider.documents.fotoFrontal}`} alt="Frontal" className="w-full h-full object-cover" />
+              {provider?.verificationFrontImage ? (
+                <img src={getFileUrl(provider.verificationFrontImage)} alt="Frontal" className="w-full h-full object-cover" />
               ) : (
                 <div className="text-center text-gray-400">
                   <Icon name="camera" className="w-8 h-8 mx-auto mb-1" />
@@ -76,14 +77,14 @@ export default function ProviderDocuments() {
             </div>
             <label className="mt-2 btn btn-outline btn-small w-full justify-center cursor-pointer">
               <Icon name="upload" /> Subir frontal
-              <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => handleUpload(e, "fotoFrontal")} className="hidden" />
+              <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => handleUpload(e, "verificationFrontImage")} className="hidden" />
             </label>
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-700 mb-2 block">Foto lateral</label>
             <div className="aspect-square rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden relative">
-              {provider?.documents?.fotoLateral ? (
-                <img src={provider.documents.fotoLateral.startsWith("http") ? provider.documents.fotoLateral : `/api/uploads/${provider.documents.fotoLateral}`} alt="Lateral" className="w-full h-full object-cover" />
+              {provider?.verificationSideImage ? (
+                <img src={getFileUrl(provider.verificationSideImage)} alt="Lateral" className="w-full h-full object-cover" />
               ) : (
                 <div className="text-center text-gray-400">
                   <Icon name="camera" className="w-8 h-8 mx-auto mb-1" />
@@ -93,7 +94,7 @@ export default function ProviderDocuments() {
             </div>
             <label className="mt-2 btn btn-outline btn-small w-full justify-center cursor-pointer">
               <Icon name="upload" /> Subir lateral
-              <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => handleUpload(e, "fotoLateral")} className="hidden" />
+              <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => handleUpload(e, "verificationSideImage")} className="hidden" />
             </label>
           </div>
         </div>
@@ -103,19 +104,19 @@ export default function ProviderDocuments() {
         <h2 className="font-bold text-gray-900 mb-4">Documentos registrados</h2>
           {
             [
-              { label: "Copia de cédula", value: provider?.documents?.cedula },
-              { label: "Certificado de no antecedentes", value: provider?.documents?.antecedentes },
-              { label: "Experiencia o referencias", value: provider?.documents?.oficio },
-              { label: "RUC/RIMPE opcional", value: provider?.documents?.ruc },
+              { label: "Copia de cédula", value: provider?.documents?.cedula, field: "docCedula" },
+              { label: "Certificado de no antecedentes", value: provider?.documents?.antecedentes, field: "docAntecedentes" },
+              { label: "Experiencia o referencias", value: provider?.documents?.oficio, field: "docOficio" },
+              { label: "RUC/RIMPE opcional", value: provider?.documents?.ruc, field: "docRuc" },
             ].map((d, i) => (
               <div key={i} className="flex items-center gap-4 mb-4 p-3 rounded-lg border border-gray-200 bg-gray-50">
                 <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0"><Icon name="file-pdf" /></div>
                 <div className="min-w-0 flex-1"><strong className="block text-sm font-semibold text-gray-900">{d.label}</strong><small className="text-xs text-gray-500">{d.value || "No adjuntado"}</small></div>
                 {d.value && d.value !== "No adjuntado" && (
-                  <a href={d.value.startsWith("http") ? d.value : `/api/uploads/${d.value}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm font-semibold">Ver archivo</a>
+                  <a href={getFileUrl(d.value)} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm font-semibold">Ver archivo</a>
                 )}
                 <label className="text-blue-600 text-sm font-semibold cursor-pointer">
-                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleUpload(e, d.value?.includes("cedula") ? "docCedula" : d.value?.includes("antecedentes") ? "docAntecedentes" : d.value?.includes("oficio") ? "docOficio" : "docRuc")} className="hidden" />
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => handleUpload(e, d.field)} className="hidden" />
                   Cambiar
                 </label>
               </div>

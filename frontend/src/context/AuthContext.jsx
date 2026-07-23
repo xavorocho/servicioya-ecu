@@ -33,20 +33,17 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
-  const googleLogin = async (credential) => {
-    const { data } = await api.post("/auth/google", { credential });
+  const googleLogin = async (credential, options = {}) => {
+    const { data } = await api.post("/auth/google", { credential, ...options });
     localStorage.setItem("sy_token", data.token);
     localStorage.setItem("sy_user", JSON.stringify(data.user));
     setUser(data.user);
-    return data.user;
+    return { ...data.user, requiresProviderProfile: data.requiresProviderProfile };
   };
 
   const register = async (userData) => {
-    const { data } = await api.post("/auth/register", userData);
-    localStorage.setItem("sy_token", data.token);
-    localStorage.setItem("sy_user", JSON.stringify(data.user));
-    setUser(data.user);
-    return data.user;
+    const { data } = await api.post("/auth/register", userData, userData instanceof FormData ? { headers: { "Content-Type": "multipart/form-data" } } : undefined);
+    return data;
   };
 
   const logout = () => {

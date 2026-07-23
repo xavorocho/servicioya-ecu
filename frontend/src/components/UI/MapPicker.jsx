@@ -37,6 +37,16 @@ export default function MapPicker({ onSelect, initialPosition }) {
     }
   };
 
+  const useCurrentLocation = () => {
+    if (!navigator.geolocation) return;
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => handleSelect({ lat: coords.latitude, lng: coords.longitude }),
+      () => setLoading(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   return (
     <div className="rounded-xl overflow-hidden border border-gray-200">
       <div className="bg-blue-50 px-4 py-2 flex items-center gap-2">
@@ -44,6 +54,7 @@ export default function MapPicker({ onSelect, initialPosition }) {
         <span className="text-sm font-semibold text-blue-800">
           {loading ? "Obteniendo dirección..." : "Haz clic en el mapa para seleccionar ubicación"}
         </span>
+        <button type="button" onClick={useCurrentLocation} className="ml-auto text-xs font-bold text-blue-700 hover:underline">Usar mi ubicación</button>
       </div>
       <MapContainer
         center={[position.lat, position.lng]}

@@ -55,6 +55,7 @@ router.get("/stats", authenticate, authorize("admin"), async (req, res) => {
 
 router.post("/webhook/payphone", async (req, res) => {
   try {
+    if (!process.env.PAYPHONE_WEBHOOK_SECRET || req.get("x-webhook-secret") !== process.env.PAYPHONE_WEBHOOK_SECRET) return res.status(401).json({ error: "Webhook no autorizado" });
     const { clientTransactionId, transactionId, status } = req.body;
 
     if (status === "Approved") {
@@ -90,7 +91,7 @@ router.post("/:id/process", authenticate, async (req, res) => {
 
     const PAYPHONE_TOKEN = process.env.PAYPHONE_TOKEN;
 
-    if (!PAYPHONE_TOKEN) {
+    if (!PAYPHONE_TOKEN && process.env.NODE_ENV !== "production") {
       const txId = `SIM-${Date.now()}`;
       await prisma.payment.update({
         where: { id: req.params.id },
@@ -107,6 +108,7 @@ router.post("/:id/process", authenticate, async (req, res) => {
         message: "Pago simulado (PayPhone no configurado)",
       });
     }
+    if (!PAYPHONE_TOKEN) return res.status(503).json({ error: "El servicio de pagos no está configurado" });
 
     const payphoneResponse = await fetch("https://pay.payphonemodule.com/api/button/Session", {
       method: "POST",
@@ -153,6 +155,8 @@ router.get("/:id/status", authenticate, async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({ where: { id: req.params.id } });
     if (!payment) return res.status(404).json({ error: "Pago no encontrado" });
+    const provider = req.user.role === "proveedor" ? await prisma.provider.findUnique({ where: { userEmail: req.user.email } }) : null;
+    if (req.user.role !== "admin" && payment.clientEmail !== req.user.email && payment.providerId !== provider?.id) return res.status(403).json({ error: "No autorizado" });
     res.json({ status: payment.paymentStatus, transactionId: payment.transactionId });
   } catch (err) {
     res.status(500).json({ error: err.message });

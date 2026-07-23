@@ -4,7 +4,7 @@ import { useToast } from "../../components/UI/Toast";
 import api from "../../api/client";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
 
-const CITIES = ["Quito", "Latacunga", "Ambato", "Pelileo", "Sangolquí", "Riobamba"];
+const CITIES = ["Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo", "Loja", "Ambato", "Riobamba", "Latacunga", "Ibarra", "Esmeraldas", "Tulcán", "Puyo", "Tena", "Nueva Loja", "Babahoyo", "Guaranda", "Azogues", "Macas", "Zamora", "Puerto Baquerizo Moreno", "Santa Elena"];
 const CATEGORIES = [
   { id: "plomeria", name: "Plomería" }, { id: "electricidad", name: "Electricidad" },
   { id: "limpieza", name: "Limpieza" }, { id: "pintura", name: "Pintura" },
@@ -17,7 +17,8 @@ export default function ProviderProfileEdit() {
   const { user, updateUser } = useAuth();
   const showToast = useToast();
   const [provider, setProvider] = useState(null);
-  const [form, setForm] = useState({ name: "", category: "", sector: "", price: "", phone: "", description: "" });
+  const [form, setForm] = useState({ name: "", category: "", city: "", sector: "", experience: "", price: "", phone: "", description: "", available: "false" });
+  const [onboardingFiles, setOnboardingFiles] = useState({});
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -39,10 +40,13 @@ export default function ProviderProfileEdit() {
       setForm({
         name: data.name,
         category: data.category,
+        city: data.city,
+        experience: data.experienceYears || "",
         sector: data.sector,
         price: data.price,
         phone: data.phone,
         description: data.description,
+        available: String(data.available),
       });
     });
   }, []);
@@ -50,7 +54,15 @@ export default function ProviderProfileEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.put("/providers/profile", form);
+      let data;
+      if (provider.category === "pendiente") {
+        const payload = new FormData();
+        Object.entries(form).forEach(([key, value]) => payload.append(key, value));
+        Object.entries(onboardingFiles).forEach(([key, value]) => { if (value) payload.append(key, value); });
+        ({ data } = await api.put("/providers/register", payload, { headers: { "Content-Type": "multipart/form-data" } }));
+      } else {
+        ({ data } = await api.put("/providers/profile", form));
+      }
       updateUser({ ...user, providerId: data.id });
       showToast("Perfil profesional actualizado.");
     } catch (err) {
@@ -83,6 +95,7 @@ export default function ProviderProfileEdit() {
                 <input type="file" accept=".jpg,.jpeg,.png" onChange={handleImageUpload} className="hidden" />
               </label>
             </div>
+            <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Ciudad</label><select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm"><option value="">Selecciona</option>{CITIES.map((city) => <option key={city}>{city}</option>)}</select></div>
             <p className="text-xs text-gray-500 mt-2">Foto de perfil</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,6 +108,7 @@ export default function ProviderProfileEdit() {
             </div>
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Sector de cobertura</label><input type="text" value={form.sector} onChange={(e) => setForm({ ...form, sector: e.target.value })} required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" /></div>
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Precio referencial por hora</label><input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} min="1" required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" /></div>
+            <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Años de experiencia</label><input type="number" value={form.experience} onChange={(e) => setForm({ ...form, experience: e.target.value })} min="0" required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm" /></div>
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Disponibilidad</label>
               <select value={form.available} onChange={(e) => setForm({ ...form, available: e.target.value })} className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
                 <option value="true">Disponible</option>
@@ -105,6 +119,7 @@ export default function ProviderProfileEdit() {
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Descripción</label>
               <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} required className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all resize-y" />
             </div>
+            {provider.category === "pendiente" && <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3"><p className="text-xs font-bold text-amber-800">Completa la validación de tu cuenta creada con Google</p>{[{ key: "docCedula", label: "Cédula", accept: ".pdf,.jpg,.jpeg,.png" }, { key: "docAntecedentes", label: "Antecedentes", accept: ".pdf,.jpg,.jpeg,.png" }, { key: "docOficio", label: "Certificado de experiencia", accept: ".pdf,.jpg,.jpeg,.png" }, { key: "docRuc", label: "RUC/RIMPE (opcional)", accept: ".pdf,.jpg,.jpeg,.png" }, { key: "profileImage", label: "Foto de perfil", accept: ".jpg,.jpeg,.png,.webp" }, { key: "verificationFrontImage", label: "Foto frontal", accept: ".jpg,.jpeg,.png,.webp" }, { key: "verificationSideImage", label: "Foto lateral", accept: ".jpg,.jpeg,.png,.webp" }].map((field) => <label key={field.key} className="block text-xs font-semibold">{field.label}<input type="file" accept={field.accept} required={field.key !== "docRuc"} onChange={(event) => setOnboardingFiles((current) => ({ ...current, [field.key]: event.target.files[0] }))} className="block mt-1 w-full" /></label>)}</div>}
             <button type="submit" className="btn btn-primary btn-full"><Icon name="save" /> Guardar cambios</button>
           </form>
         </section>

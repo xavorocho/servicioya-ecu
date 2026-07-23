@@ -274,10 +274,12 @@ export default function ClientRequestDetail() {
               <DetailRow icon="user" label="Proveedor" value={request.providerName} />
               <DetailRow icon="wrench" label="Servicio" value={request.service} />
               <DetailRow icon="location-dot" label="Dirección" value={request.address} />
+              <DetailRow icon="map-pin" label="Referencia" value={request.addressReference} />
+              {request.latitude && request.longitude && <DetailRow icon="location-crosshairs" label="Coordenadas" value={`${request.latitude.toFixed(6)}, ${request.longitude.toFixed(6)}`} />}
               <DetailRow icon="clock" label="Fecha preferida" value={request.preferredDate || "Sin preferencia"} />
               <DetailRow icon="clock" label="Rango horario" value={request.preferredTimeRange || "Sin preferencia"} />
-              {quote?.providerExactTime && (
-                <DetailRow icon="clock" label="Hora acordada" value={quote.providerExactTime} />
+              {(request.agreedTime || quote?.providerExactTime) && (
+                <DetailRow icon="clock" label="Hora acordada" value={request.agreedTime || quote.providerExactTime} />
               )}
               <DetailRow icon="tags" label="Descripción" value={request.description} />
             </div>
@@ -291,7 +293,7 @@ export default function ClientRequestDetail() {
               <div className="flex flex-wrap gap-3">
                 {images.map((img, i) => (
                   <div key={i} className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <img src={img} alt={`Adjunto ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={img.startsWith("http") ? img : `/api/uploads/${img}`} alt={`Adjunto ${i + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
@@ -304,13 +306,13 @@ export default function ClientRequestDetail() {
                 <Icon name="dollar-sign" className="text-blue-600" /> Cotización
               </h2>
               <div className="grid sm:grid-cols-2 gap-4 mb-4">
-                <div className={`rounded-xl p-4 border ${quote.selectedOption === "without_materials" ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200" : "bg-emerald-50 border-emerald-200"}`}>
+                <div className={`rounded-xl p-4 border ${quote.acceptedOption === "without_materials" ? "bg-emerald-50 border-emerald-300 ring-2 ring-emerald-200" : "bg-emerald-50 border-emerald-200"}`}>
                   <p className="text-xs text-emerald-700 font-bold uppercase tracking-wide mb-1">Opción B: Sin materiales</p>
                   <p className="text-2xl font-extrabold text-emerald-800">${Number(quote.totalWithoutMaterials || 0).toFixed(2)}</p>
                   <p className="text-xs text-emerald-600 mt-1">Mano de obra: ${Number(quote.laborPrice || 0).toFixed(2)}</p>
                   <p className="text-xs text-emerald-600">Tú compras los materiales</p>
                 </div>
-                <div className={`rounded-xl p-4 border ${quote.selectedOption === "with_materials" ? "bg-blue-50 border-blue-300 ring-2 ring-blue-200" : "bg-blue-50 border-blue-200"}`}>
+                <div className={`rounded-xl p-4 border ${quote.acceptedOption === "with_materials" ? "bg-blue-50 border-blue-300 ring-2 ring-blue-200" : "bg-blue-50 border-blue-200"}`}>
                   <p className="text-xs text-blue-700 font-bold uppercase tracking-wide mb-1">Opción A: Con materiales</p>
                   <p className="text-2xl font-extrabold text-blue-800">${Number(quote.totalWithMaterials || 0).toFixed(2)}</p>
                   <p className="text-xs text-blue-600 mt-1">Mano de obra: ${Number(quote.laborPrice || 0).toFixed(2)} + Materiales: ${Number(quote.materialsPrice || 0).toFixed(2)}</p>
@@ -325,11 +327,11 @@ export default function ClientRequestDetail() {
                 </div>
               )}
 
-              {quote.selectedOption && (
+              {quote.acceptedOption && (
                 <div className="bg-indigo-50 rounded-xl p-3 border border-indigo-200 flex items-center gap-2">
                   <Icon name="circle-check" className="text-indigo-600" />
                   <span className="text-xs font-bold text-indigo-700">
-                    Opción elegida: {quote.selectedOption === "with_materials" ? "Con materiales" : "Sin materiales"}
+                    Opción elegida: {quote.acceptedOption === "with_materials" ? "Con materiales" : "Sin materiales"}
                   </span>
                 </div>
               )}
@@ -342,6 +344,10 @@ export default function ClientRequestDetail() {
               )}
             </div>
           )}
+
+          {request.evidence?.length > 0 && <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm"><h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-sm"><Icon name="camera" className="text-blue-600" /> Evidencias del trabajo</h2><div className="grid grid-cols-3 sm:grid-cols-5 gap-2">{request.evidence.map((item, index) => <img key={index} src={item.startsWith("http") ? item : `/api/uploads/${item}`} alt={`Evidencia ${index + 1}`} className="w-full aspect-square rounded-xl object-cover border" />)}</div></div>}
+
+          {request.statusHistory?.length > 0 && <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm"><h2 className="font-bold text-gray-900 mb-3 text-sm">Historial</h2><ol className="space-y-2">{request.statusHistory.map((item, index) => <li key={index} className="text-xs border-l-2 border-blue-300 pl-3"><strong className="capitalize">{item.status.replace(/_/g, " ")}</strong><span className="text-gray-500 ml-2">{new Date(item.at).toLocaleString("es-EC")}</span>{item.note && <p className="text-gray-500">{item.note}</p>}</li>)}</ol></div>}
         </div>
 
         <div className="space-y-4">

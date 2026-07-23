@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../components/UI/Toast";
 import api from "../../api/client";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
+import MapPicker from "../../components/UI/MapPicker";
 
 const CITIES = [
   "Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo",
@@ -27,6 +28,9 @@ export default function RequestForm() {
     preferredDate: new Date().toISOString().slice(0, 10),
     preferredTimeRange: "",
     address: "",
+    addressReference: "",
+    latitude: "",
+    longitude: "",
     description: "",
   });
 
@@ -36,6 +40,9 @@ export default function RequestForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.latitude || !form.longitude) return showToast("Selecciona la ubicación exacta en el mapa", "error");
+    if (images.length < 1 || images.length > 5) return showToast("Adjunta entre 1 y 5 imágenes", "error");
+    if (images.some((image) => image.size > 5 * 1024 * 1024)) return showToast("Cada imagen debe pesar máximo 5 MB", "error");
     setLoading(true);
     try {
       const fd = new FormData();
@@ -44,6 +51,9 @@ export default function RequestForm() {
       fd.append("phone", form.phone);
       fd.append("city", form.city);
       fd.append("address", form.address);
+      fd.append("addressReference", form.addressReference);
+      fd.append("latitude", form.latitude);
+      fd.append("longitude", form.longitude);
       fd.append("description", form.description);
       fd.append("preferredDate", form.preferredDate);
       fd.append("preferredTimeRange", form.preferredTimeRange);
@@ -86,17 +96,17 @@ export default function RequestForm() {
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Fecha preferida</label><input type="date" value={form.preferredDate} onChange={(e) => setForm({ ...form, preferredDate: e.target.value })} min={new Date().toISOString().slice(0, 10)} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Rango de horario</label><select value={form.preferredTimeRange} onChange={(e) => setForm({ ...form, preferredTimeRange: e.target.value })} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white"><option value="">Selecciona</option><option>Mañana (8:00 - 12:00)</option><option>Tarde (12:00 - 18:00)</option><option>Noche (18:00 - 21:00)</option></select></div>
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Dirección o sector</label><input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Ej: Latacunga centro" required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
+              <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Referencia para llegar</label><input type="text" value={form.addressReference} onChange={(e) => setForm({ ...form, addressReference: e.target.value })} placeholder="Ej: Casa azul junto al parque" required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
               <div className="sm:col-span-2"><label className="text-xs font-semibold text-gray-700 mb-1 block">Descripción del trabajo *</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} placeholder="Describe claramente qué necesitas. Ej: Fuga en lavamanos del baño principal, gotea constantemente." required className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white resize-y" /></div>
             </div>
-            <p className="text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-start gap-2 font-semibold">
-              <Icon name="circle-info" className="mt-0.5 flex-shrink-0" />
-              <span>Después de enviar, el proveedor revisará tu solicitud y enviará una cotización con dos opciones de precio y una hora exacta. Tú podrás aceptar, proponer otra hora o rechazar.</span>
-            </p>
+            <div><label className="text-xs font-semibold text-gray-700 mb-2 block">Ubicación exacta *</label><MapPicker onSelect={({ lat, lng, address }) => setForm((current) => ({ ...current, latitude: String(lat), longitude: String(lng), address: address || current.address }))} /></div>
             <section className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="image" className="text-blue-600" /> Fotos del problema (opcional)</h3>
-              <p className="text-xs text-gray-500">Sube hasta 5 fotos para que el proveedor pueda entender mejor tu problema.</p>
+              <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="image" className="text-blue-600" /> Fotos del problema *</h3>
+              <p className="text-xs text-gray-500">Adjunta entre 1 y 5 imágenes JPG, PNG o WEBP. Máximo 5 MB por archivo.</p>
               <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={(e) => {
-                const newFiles = Array.from(e.target.files).slice(0, 5 - images.length);
+                const selected = Array.from(e.target.files);
+                if (selected.some((file) => file.size > 5 * 1024 * 1024)) showToast("Se omitieron imágenes mayores a 5 MB", "error");
+                const newFiles = selected.filter((file) => file.size <= 5 * 1024 * 1024).slice(0, 5 - images.length);
                 setImages((prev) => [...prev, ...newFiles].slice(0, 5));
               }} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" />
               {images.length > 0 && (

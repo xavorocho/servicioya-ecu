@@ -8,21 +8,27 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String
-  email      String   @unique
-  password   String
-  role       String   @default("cliente")
-  phone      String   @default("")
-  city       String   @default("")
-  status       String   @default("Activo")
-  profileImage String   @default("")
-  emailVerified Boolean  @default(false)
-  verificationToken String?
-  authProvider String   @default("local")
-  providerId   String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                     String    @id @default(uuid())
+  name                   String
+  email                  String    @unique
+  password               String
+  role                   String    @default("cliente")
+  phone                  String    @default("")
+  city                   String    @default("")
+  status                 String    @default("Activo")
+  profileImage           String    @default("")
+  emailVerified          Boolean   @default(false)
+  verificationToken      String?
+  verificationExpiresAt  DateTime?
+  passwordResetToken     String?
+  passwordResetExpiresAt DateTime?
+  termsAccepted          Boolean   @default(false)
+  termsAcceptedAt        DateTime?
+  termsVersion           String?
+  authProvider           String    @default("local")
+  providerId             String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
 
 model Category {
@@ -40,32 +46,36 @@ model Category {
 }
 
 model Provider {
-  id            String   @id @default(uuid())
-  legacyId      Int?
-  userEmail     String   @unique
-  name          String
-  category      String
-  categoryName  String
-  city          String
-  sector        String   @default("")
-  rating        Float    @default(0)
-  reviews       Int      @default(0)
-  price         Float    @default(0)
-  available     Boolean  @default(false)
-  verified      Boolean  @default(false)
-  status        String   @default("Pendiente")
-  color         String   @default("avatar-cyan")
-  experience    String   @default("")
-  phone         String   @default("")
-  description   String   @default("")
-  services      String   @default("[]")
-  documents     String   @default("{}")
-  comments      String   @default("[]")
-  categoryId    String?
-  experienceYears Int    @default(0)
-  baseReferencePrice Float @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                     String   @id @default(uuid())
+  legacyId               Int?
+  userEmail              String   @unique
+  name                   String
+  category               String
+  categoryName           String
+  city                   String
+  sector                 String   @default("")
+  rating                 Float    @default(0)
+  reviews                Int      @default(0)
+  price                  Float    @default(0)
+  available              Boolean  @default(false)
+  verified               Boolean  @default(false)
+  status                 String   @default("Pendiente")
+  color                  String   @default("avatar-cyan")
+  experience             String   @default("")
+  phone                  String   @default("")
+  description            String   @default("")
+  profileImage           String   @default("")
+  verificationFrontImage String   @default("")
+  verificationSideImage  String   @default("")
+  services               String   @default("[]")
+  documents              String   @default("{}")
+  comments               String   @default("[]")
+  documentReviews        String   @default("{}")
+  categoryId             String?
+  experienceYears        Int      @default(0)
+  baseReferencePrice     Float    @default(0)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   orders          Request[]
   quotes          Quote[]
@@ -77,47 +87,56 @@ model Provider {
 }
 
 model ProviderDocument {
-  id           String   @id @default(uuid())
-  providerId   String
-  documentType String
-  filePath     String
-  originalName String
-  reviewStatus String   @default("Pendiente")
-  reviewedBy   String?
-  reviewedAt   DateTime?
+  id              String    @id @default(uuid())
+  providerId      String
+  documentType    String
+  filePath        String
+  originalName    String
+  reviewStatus    String    @default("Pendiente")
+  reviewedBy      String?
+  reviewedAt      DateTime?
   rejectionReason String?
-  uploadedAt   DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  uploadedAt      DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   provider Provider @relation(fields: [providerId], references: [id])
 }
 
 model Request {
-  id               String   @id @default(uuid())
-  displayId        String   @unique
-  clientEmail      String
-  client           String
-  providerId       String
-  providerName     String
-  service          String
-  categoryId       String?
-  city             String   @default("")
-  address          String   @default("")
-  description      String   @default("")
-  phone            String   @default("")
-  preferredDate    String   @default("")
-  preferredTimeRange String @default("")
-  status           String   @default("pendiente_cotizacion")
-  images           String   @default("[]")
-  evidence         String   @default("[]")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                  String    @id @default(uuid())
+  displayId           String    @unique
+  clientEmail         String
+  client              String
+  providerId          String
+  providerName        String
+  service             String
+  categoryId          String?
+  city                String    @default("")
+  address             String    @default("")
+  addressReference    String    @default("")
+  latitude            Float?
+  longitude           Float?
+  description         String    @default("")
+  phone               String    @default("")
+  preferredDate       String    @default("")
+  preferredTimeRange  String    @default("")
+  status              String    @default("pendiente_cotizacion")
+  images              String    @default("[]")
+  evidence            String    @default("[]")
+  acceptedPriceOption String?
+  agreedTime          String?
+  workConditions      String    @default("")
+  statusHistory       String    @default("[]")
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  provider   Provider?    @relation(fields: [providerId], references: [id])
-  quotes     Quote[]
-  payments   Payment[]
-  reviews    Review[]
+  provider     Provider?     @relation(fields: [providerId], references: [id])
+  quotes       Quote[]
+  payments     Payment[]
+  reviews      Review[]
   chatMessages ChatMessage[]
 }
 
@@ -132,14 +151,15 @@ model Quote {
   materialsDetail       String   @default("")
   providerNote          String   @default("")
   providerExactTime     String   @default("")
+  acceptedOption        String?
   status                String   @default("enviada")
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  request        Request?          @relation(fields: [requestId], references: [id])
-  provider       Provider?         @relation(fields: [providerId], references: [id])
-  timeProposals  TimeProposal[]
-  payments       Payment[]
+  request       Request?       @relation(fields: [requestId], references: [id])
+  provider      Provider?      @relation(fields: [providerId], references: [id])
+  timeProposals TimeProposal[]
+  payments      Payment[]
 }
 
 model TimeProposal {
@@ -156,77 +176,91 @@ model TimeProposal {
 }
 
 model Payment {
-  id             String   @id @default(uuid())
-  requestId      String
-  quoteId        String?
-  clientEmail    String
-  providerId     String
-  amount         Float
-  platformFee    Float    @default(0)
-  paymentMethod  String   @default("payphone")
-  paymentStatus  String   @default("pendiente")
-  transactionId  String?
-  description    String   @default("")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(uuid())
+  requestId     String
+  quoteId       String?
+  clientEmail   String
+  providerId    String
+  amount        Float
+  platformFee   Float    @default(0)
+  paymentMethod String   @default("payphone")
+  paymentStatus String   @default("pendiente")
+  transactionId String?
+  description   String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  request  Request?   @relation(fields: [requestId], references: [id])
-  quote    Quote?     @relation(fields: [quoteId], references: [id])
-  provider Provider?  @relation(fields: [providerId], references: [id])
+  request  Request?  @relation(fields: [requestId], references: [id])
+  quote    Quote?    @relation(fields: [quoteId], references: [id])
+  provider Provider? @relation(fields: [providerId], references: [id])
 }
 
 model Review {
-  id         String   @id @default(uuid())
-  requestId  String
+  id          String   @id @default(uuid())
+  requestId   String
   clientEmail String
-  providerId String
-  rating     Int
-  comment    String   @default("")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  providerId  String
+  rating      Int
+  comment     String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   request  Request?  @relation(fields: [requestId], references: [id])
   provider Provider? @relation(fields: [providerId], references: [id])
 }
 
 model SupportMessage {
-  id           String   @id @default(uuid())
-  userId       String
-  userEmail    String
-  userRole     String
-  userName     String
-  subject      String
-  message      String
-  status       String   @default("nuevo")
-  response     String?
-  respondedBy  String?
-  respondedAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(uuid())
+  userId      String
+  userEmail   String
+  userRole    String
+  userName    String
+  subject     String
+  message     String
+  status      String    @default("nuevo")
+  priority    String    @default("media")
+  response    String?
+  respondedBy String?
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userEmail String
+  title     String
+  message   String
+  type      String   @default("info")
+  link      String   @default("")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userEmail, read])
 }
 
 model ChatMessage {
-  id           String   @id @default(uuid())
-  requestId    String
-  senderEmail  String
-  senderName   String
-  senderRole   String
-  message      String
-  read         Boolean  @default(false)
-  createdAt    DateTime @default(now())
+  id          String   @id @default(uuid())
+  requestId   String
+  senderEmail String
+  senderName  String
+  senderRole  String
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   request Request? @relation(fields: [requestId], references: [id])
 }
 
 model PendingSpecialty {
-  id              String   @id @default(uuid())
-  providerId      String
-  providerEmail   String
-  providerName    String
-  specialtyName   String
-  status          String   @default("pendiente")
-  adminNote       String?
+  id                   String    @id @default(uuid())
+  providerId           String
+  providerEmail        String
+  providerName         String
+  specialtyName        String
+  status               String    @default("pendiente")
+  adminNote            String?
   associatedCategoryId String?
-  createdAt       DateTime @default(now())
-  reviewedAt      DateTime?
+  createdAt            DateTime  @default(now())
+  reviewedAt           DateTime?
 }

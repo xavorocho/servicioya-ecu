@@ -4,28 +4,28 @@ import api from "../../api/client";
 import { Icon } from "./helpers";
 
 const guides = {
-  Cliente: [
+  cliente: [
     { icon: "magnifying-glass", title: "Solicitar un servicio", desc: 'Ve al catálogo, selecciona un proveedor y haz clic en "Solicitar servicio".' },
     { icon: "circle-check", title: "Aceptar una cotización", desc: 'En "Mis solicitudes", abre la solicitud y revisa las opciones de precio.' },
     { icon: "clock", title: "Proponer otra hora", desc: 'En la cotización, selecciona "Proponer otra hora".' },
     { icon: "dollar-sign", title: "Pagar reserva", desc: 'Después de aceptar, haz clic en "Pagar reserva".' },
     { icon: "star", title: "Calificar un servicio", desc: 'En "Mis solicitudes", abre la solicitud completada y califica.' },
   ],
-  Proveedor: [
+  proveedor: [
     { icon: "inbox", title: "Revisar una solicitud", desc: 'Ve a "Mis trabajos" y abre el detalle.' },
     { icon: "dollar-sign", title: "Enviar cotización", desc: 'En el detalle del trabajo, haz clic en "Crear cotización".' },
     { icon: "clock", title: "Responder a hora propuesta", desc: "En el detalle, acepta o rechaza la propuesta." },
     { icon: "play", title: "Iniciar trabajo", desc: 'Después de confirmación, haz clic en "Iniciar trabajo".' },
     { icon: "check-double", title: "Finalizar trabajo", desc: 'En el detalle, haz clic en "Marcar como completado".' },
   ],
-  Admin: [
+  admin: [
     { icon: "user-check", title: "Verificar proveedores", desc: 'Ve a "Verificaciones" y revisa documentos.' },
     { icon: "clipboard-list", title: "Gestionar solicitudes", desc: 'Ve a "Solicitudes" para supervisar el estado.' },
     { icon: "tags", title: "Gestionar categorías", desc: 'Ve a "Categorías" para crear o editar.' },
   ],
 };
 
-const roleLabels = { Cliente: "Guía del Cliente", Proveedor: "Guía del Proveedor", Admin: "Guía del Administrador" };
+const roleLabels = { cliente: "Guía del Cliente", proveedor: "Guía del Proveedor", admin: "Guía del Administrador" };
 
 export default function HelpButton() {
   const { user } = useAuth();
@@ -34,16 +34,17 @@ export default function HelpButton() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [priority, setPriority] = useState("media");
 
-  const role = user?.role || "Cliente";
-  const items = guides[role] || guides.Cliente;
+  const role = user?.role || "cliente";
+  const items = guides[role] || guides.cliente;
 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
     setSending(true);
     try {
-      await api.post("/support", { subject: subject.trim(), message: message.trim(), role });
+      await api.post("/support", { subject: subject.trim(), message: message.trim(), priority });
       setSent(true);
       setSubject("");
       setMessage("");
@@ -99,7 +100,7 @@ export default function HelpButton() {
                 <Icon name="envelope" className="text-blue-600" /> Contactar soporte
               </h3>
 
-              {sent ? (
+              {!user ? <p className="text-sm text-gray-600 bg-white border rounded-xl p-3">Inicia sesión para enviar un mensaje al administrador.</p> : sent ? (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-semibold">
                   <Icon name="circle-check" /> Mensaje enviado correctamente.
                 </div>
@@ -121,6 +122,7 @@ export default function HelpButton() {
                     rows={3}
                     className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
                   />
+                  <select value={priority} onChange={(event) => setPriority(event.target.value)} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm"><option value="baja">Prioridad baja</option><option value="media">Prioridad media</option><option value="alta">Prioridad alta</option><option value="urgente">Urgente</option></select>
                   <button
                     type="submit"
                     disabled={sending || !subject.trim() || !message.trim()}

@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import PasswordRecovery from "./pages/PasswordRecovery";
 import Catalog from "./pages/Catalog";
 import ProviderProfile from "./pages/ProviderProfile";
 import Help from "./pages/Help";
@@ -46,6 +47,8 @@ export default function App() {
         <Route path="/login" element={user ? <Navigate to={`/${user.role}/inicio`} /> : <Login />} />
         <Route path="/registro" element={user ? <Navigate to={`/${user.role}/inicio`} /> : <Register />} />
         <Route path="/verificar-email" element={<VerifyEmail />} />
+        <Route path="/recuperar-contrasena" element={<PasswordRecovery />} />
+        <Route path="/restablecer-contrasena" element={<PasswordRecovery reset />} />
         <Route path="/catalogo" element={<Catalog />} />
         <Route path="/perfil/:id" element={<ProviderProfile />} />
         <Route path="/ayuda" element={<Help />} />

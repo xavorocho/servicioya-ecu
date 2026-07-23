@@ -157,7 +157,7 @@ export default function Home() {
                 <Icon name="shield-halved" />
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[0.6rem] font-bold border border-emerald-200">
-                <Icon name="circle-check" /> Avance funcional
+                <Icon name="circle-check" /> Verificación administrativa
               </span>
             </div>
             <h2 className="font-extrabold text-gray-900 text-lg leading-tight">Contrata con más confianza</h2>

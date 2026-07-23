@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../../api/client";
 import { useToast } from "../../components/UI/Toast";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
+import { getFileUrl } from "../../utils/files";
 
 const DOC_LABELS = {
   cedula: "Cédula",
@@ -11,14 +12,8 @@ const DOC_LABELS = {
   frontal: "Foto de perfil",
 };
 
-function getDocUrl(path) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `/api/uploads/${path}`;
-}
-
-function ProviderCard({ provider, onApproved, onRejected }) {
-  const { addToast } = useToast();
+function ProviderCard({ provider, onApproved, onRejected, onRefresh }) {
+  const showToast = useToast();
   const [expanded, setExpanded] = useState(false);
   const [rejecting, setRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
@@ -38,10 +33,10 @@ function ProviderCard({ provider, onApproved, onRejected }) {
     setLoading(true);
     try {
       await api.put(`/providers/${provider.id}/approve`);
-      addToast("Proveedor aprobado correctamente", "success");
+      showToast("Proveedor aprobado correctamente", "success");
       onApproved(provider.id);
     } catch {
-      addToast("Error al aprobar proveedor", "error");
+      showToast("Error al aprobar proveedor", "error");
     } finally {
       setLoading(false);
     }
@@ -49,7 +44,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
 
   const rejectAll = async () => {
     if (!rejectReason.trim()) {
-      addToast("Ingresa un motivo de rechazo", "error");
+      showToast("Ingresa un motivo de rechazo", "error");
       return;
     }
     setLoading(true);
@@ -57,10 +52,10 @@ function ProviderCard({ provider, onApproved, onRejected }) {
       await api.put(`/providers/${provider.id}/reject`, {
         reason: rejectReason.trim(),
       });
-      addToast("Proveedor rechazado", "success");
+      showToast("Proveedor rechazado", "success");
       onRejected(provider.id);
     } catch {
-      addToast("Error al rechazar proveedor", "error");
+      showToast("Error al rechazar proveedor", "error");
     } finally {
       setLoading(false);
     }
@@ -70,10 +65,10 @@ function ProviderCard({ provider, onApproved, onRejected }) {
     setLoading(true);
     try {
       await api.put(`/providers/${provider.id}/documents/${docKey}/approve`);
-      addToast(`${DOC_LABELS[docKey] || docKey} aprobado`, "success");
-      onApproved(provider.id);
+      showToast(`${DOC_LABELS[docKey] || docKey} aprobado`, "success");
+      onRefresh();
     } catch {
-      addToast("Error al aprobar documento", "error");
+      showToast("Error al aprobar documento", "error");
     } finally {
       setLoading(false);
     }
@@ -81,7 +76,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
 
   const rejectDoc = async (docKey) => {
     if (!docRejectReason.trim()) {
-      addToast("Ingresa un motivo para rechazar el documento", "error");
+      showToast("Ingresa un motivo para rechazar el documento", "error");
       return;
     }
     setLoading(true);
@@ -89,12 +84,12 @@ function ProviderCard({ provider, onApproved, onRejected }) {
       await api.put(`/providers/${provider.id}/documents/${docKey}/reject`, {
         reason: docRejectReason.trim(),
       });
-      addToast(`${DOC_LABELS[docKey] || docKey} rechazado`, "success");
+      showToast(`${DOC_LABELS[docKey] || docKey} rechazado`, "success");
       setRejectingDoc(null);
       setDocRejectReason("");
-      onRejected(provider.id);
+      onRefresh();
     } catch {
-      addToast("Error al rechazar documento", "error");
+      showToast("Error al rechazar documento", "error");
     } finally {
       setLoading(false);
     }
@@ -104,9 +99,9 @@ function ProviderCard({ provider, onApproved, onRejected }) {
     <article className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="p-5">
         <div className="flex items-start gap-4 mb-4">
-          {docs.frontal ? (
+          {provider.profileImage ? (
             <img
-              src={getDocUrl(docs.frontal)}
+              src={getFileUrl(provider.profileImage)}
               alt={provider.name}
               className="w-16 h-16 rounded-xl object-cover border border-gray-200"
             />
@@ -152,7 +147,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
           <div className="bg-gray-50 rounded-lg p-2.5">
             <span className="text-gray-500 text-xs block">Email</span>
             <span className="font-medium text-gray-900 truncate block">
-              {provider.email}
+              {provider.userEmail}
             </span>
           </div>
           <div className="bg-gray-50 rounded-lg p-2.5">
@@ -164,7 +159,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
           <div className="bg-gray-50 rounded-lg p-2.5">
             <span className="text-gray-500 text-xs block">Experiencia</span>
             <span className="font-medium text-gray-900">
-              {provider.experience ? `${provider.experience} años` : "—"}
+              {provider.experience || "—"}
             </span>
           </div>
         </div>
@@ -175,14 +170,19 @@ function ProviderCard({ provider, onApproved, onRejected }) {
           </p>
         )}
 
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {[{ label: "Perfil", path: provider.profileImage }, { label: "Frontal", path: provider.verificationFrontImage }, { label: "Lateral", path: provider.verificationSideImage }].map((photo) => <div key={photo.label} className="text-center"><div className="aspect-square rounded-xl bg-gray-100 overflow-hidden border">{photo.path ? <img src={getFileUrl(photo.path)} alt={photo.label} className="w-full h-full object-cover" /> : <span className="h-full flex items-center justify-center text-xs text-gray-400">Sin foto</span>}</div><span className="text-xs font-semibold text-gray-500">{photo.label}</span></div>)}
+        </div>
+
         <div className="border-t border-gray-100 pt-4">
           <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
             Documentos
           </h4>
           <div className="space-y-2">
             {docEntries.map(([key, val]) => {
-              const url = getDocUrl(val);
+              const url = getFileUrl(val);
               const isRejecting = rejectingDoc === key;
+              const review = provider.documentReviews?.[key];
               return (
                 <div
                   key={key}
@@ -194,6 +194,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
                       <span className="text-sm font-semibold text-gray-800">
                         {DOC_LABELS[key] || key}
                       </span>
+                      {review && <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-full ${review.status === "Aprobado" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{review.status}</span>}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       {url && (
@@ -243,6 +244,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
                       </button>
                     </div>
                   )}
+                  {review?.reason && <p className="text-xs text-red-600 mt-2">Motivo: {review.reason}</p>}
                 </div>
               );
             })}
@@ -310,7 +312,7 @@ function ProviderCard({ provider, onApproved, onRejected }) {
 export default function AdminVerifications() {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { addToast } = useToast();
+  const showToast = useToast();
 
   useEffect(() => {
     fetchProviders();
@@ -322,7 +324,7 @@ export default function AdminVerifications() {
       const { data } = await api.get("/providers/pending");
       setProviders(data);
     } catch {
-      addToast("Error al cargar proveedores pendientes", "error");
+      showToast("Error al cargar proveedores pendientes", "error");
     } finally {
       setLoading(false);
     }
@@ -364,6 +366,7 @@ export default function AdminVerifications() {
               provider={p}
               onApproved={handleApproved}
               onRejected={handleRejected}
+              onRefresh={fetchProviders}
             />
           ))}
         </div>

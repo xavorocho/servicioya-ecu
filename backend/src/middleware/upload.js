@@ -21,7 +21,7 @@ const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary.v2,
   params: {
     folder: "servicioya/documentos",
-    allowed_formats: ["pdf", "jpg", "jpeg", "png"],
+    allowed_formats: ["pdf", "jpg", "jpeg", "png", "webp"],
     public_id: () => uuidv4(),
   },
 });
@@ -37,7 +37,7 @@ const localStorage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowed = [".pdf", ".jpg", ".jpeg", ".png"];
+  const allowed = [".pdf", ".jpg", ".jpeg", ".png", ".webp"];
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowed.includes(ext)) {
     cb(null, true);
@@ -57,4 +57,7 @@ export const uploadFields = upload.fields([
   { name: "docAntecedentes", maxCount: 1 },
   { name: "docOficio", maxCount: 1 },
   { name: "docRuc", maxCount: 1 },
+  { name: "profileImage", maxCount: 1 },
+  { name: "verificationFrontImage", maxCount: 1 },
+  { name: "verificationSideImage", maxCount: 1 },
 ]);

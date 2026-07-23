@@ -11,7 +11,7 @@ export default function VerifyEmail() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [hint, setHint] = useState("");
+  const [hint, setHint] = useState(localStorage.getItem("pendingVerificationHint") || "");
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -21,6 +21,7 @@ export default function VerifyEmail() {
       await api.post("/auth/verify-email", { email, code });
       setSuccess("Correo verificado correctamente. Redirigiendo...");
       localStorage.removeItem("pendingVerificationEmail");
+      localStorage.removeItem("pendingVerificationHint");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setError(err.response?.data?.error || "Error al verificar");
@@ -33,7 +34,8 @@ export default function VerifyEmail() {
     try {
       const { data } = await api.post("/auth/resend-verification", { email });
       setHint(data.hint || "");
-      setSuccess("Código reenviado");
+      if (data.hint) localStorage.setItem("pendingVerificationHint", data.hint);
+      setSuccess(data.deliveryMode === "development" ? "Código local generado" : "Código enviado a tu correo");
     } catch (err) {
       setError(err.response?.data?.error || "Error al reenviar");
     }
@@ -47,14 +49,14 @@ export default function VerifyEmail() {
             <Icon name="envelope" className="text-blue-600 text-2xl" />
           </div>
           <h1 className="text-2xl font-extrabold text-gray-900">Verifica tu correo</h1>
-          <p className="text-gray-500 mt-2 text-sm">Ingresa el código de 6 dígitos enviado a tu correo</p>
+          <p className="text-gray-500 mt-2 text-sm">Ingresa el código de 6 dígitos para activar tu cuenta</p>
         </div>
 
         {hint && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
             <p className="text-sm font-bold text-amber-800">Código de verificación:</p>
             <p className="text-2xl font-mono font-bold text-amber-600 text-center mt-1">{hint}</p>
-            <p className="text-xs text-amber-600 mt-1">En producción esto se enviaría por email</p>
+            <p className="text-xs text-amber-600 mt-1">Modo local: el servicio de correo todavía no está configurado.</p>
           </div>
         )}
 

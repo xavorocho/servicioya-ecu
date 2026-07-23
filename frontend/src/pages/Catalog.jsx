@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
 import { Icon, StatusBadge, EmptyState } from "../components/UI/helpers";
+import { getFileUrl } from "../utils/files";
 
 const CATEGORIES = [
   { id: "plomeria", name: "Plomería" }, { id: "electricidad", name: "Electricidad" },
@@ -11,15 +12,15 @@ const CATEGORIES = [
   { id: "electrodomesticos", name: "Electrodomésticos" }, { id: "mudanzas", name: "Mudanzas" },
   { id: "cerrajeria", name: "Cerrajería" }, { id: "cuidado", name: "Cuidado del hogar" },
 ];
-const CITIES = ["Quito", "Latacunga", "Ambato", "Pelileo", "Sangolquí", "Riobamba"];
+const CITIES = ["Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo", "Loja", "Ambato", "Riobamba", "Latacunga", "Ibarra", "Esmeraldas", "Tulcán", "Puyo", "Tena", "Nueva Loja", "Babahoyo", "Guaranda", "Azogues", "Macas", "Zamora", "Puerto Baquerizo Moreno", "Santa Elena"];
 
 function ProviderCard({ provider, role }) {
   const canRequest = role === "cliente" && provider.available;
   return (
     <article className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold flex-shrink-0">
-          {provider.name?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()}
+        <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
+          {provider.profileImage ? <img src={getFileUrl(provider.profileImage)} alt={`Foto de ${provider.name}`} className="w-full h-full object-cover" /> : provider.name?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()}
         </span>
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

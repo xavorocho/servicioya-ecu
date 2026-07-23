@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
-export function authenticate(req, res, next) {
+const prisma = new PrismaClient();
+
+export async function authenticate(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Token requerido" });
@@ -8,7 +11,14 @@ export function authenticate(req, res, next) {
   try {
     const token = header.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const currentUser = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { id: true, name: true, email: true, role: true, status: true, providerId: true, emailVerified: true },
+    });
+    if (!currentUser) return res.status(401).json({ error: "La cuenta ya no existe" });
+    if (["Suspendido", "Bloqueado"].includes(currentUser.status)) return res.status(403).json({ error: "La cuenta no está habilitada" });
+    if (!currentUser.emailVerified) return res.status(403).json({ error: "Debes verificar tu correo electrónico" });
+    req.user = currentUser;
     next();
   } catch {
     return res.status(401).json({ error: "Token inválido o expirado" });

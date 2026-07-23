@@ -17,6 +17,7 @@ import supportRoutes from "./routes/support.js";
 import evidenceRoutes from "./routes/evidence.js";
 import chatRoutes from "./routes/chat.js";
 import specialtyRoutes from "./routes/specialties.js";
+import notificationRoutes from "./routes/notifications.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 4000;
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "http://localhost:3000",
   "https://servicioya-ecu.vercel.app",
 ];
@@ -33,6 +35,7 @@ app.use(cors({ origin: (origin, cb) => {
 }, credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/api/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -48,6 +51,7 @@ app.use("/api/support", supportRoutes);
 app.use("/api/evidence", evidenceRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/specialties", specialtyRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", version: "2.0.0" }));
 

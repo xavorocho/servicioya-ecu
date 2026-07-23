@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
-import api from "../api/client";
 import { GoogleLogin } from "@react-oauth/google";
 
 const CATEGORIES = [
@@ -30,16 +29,19 @@ export default function Register() {
   const [role, setRole] = useState("cliente");
   const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", password: "", confirm: "" });
   const [provider, setProvider] = useState({ category: "", sector: "", experience: "", price: "", description: "", customCategory: "" });
-  const [files, setFiles] = useState({ docCedula: null, docAntecedentes: null, docOficio: null, docRuc: null });
+  const [files, setFiles] = useState({ docCedula: null, docAntecedentes: null, docOficio: null, docRuc: null, profileImage: null, verificationFrontImage: null, verificationSideImage: null });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     try {
-      const user = await googleLogin(credentialResponse.credential);
+      if (!termsAccepted) throw new Error("TERMS_REQUIRED");
+      const user = await googleLogin(credentialResponse.credential, { role, termsAccepted: true });
       showToast(`Bienvenido, ${user.name}.`);
-      navigate(`/${user.role}/inicio`);
+      navigate(user.requiresProviderProfile ? "/proveedor/perfil" : `/${user.role}/inicio`);
     } catch (err) {
-      showToast("Error al autenticar con Google", "error");
+      showToast(err.message === "TERMS_REQUIRED" ? "Acepta los términos antes de continuar" : (err.response?.data?.error || "Error al autenticar con Google"), "error");
     } finally {
       setLoading(false);
     }
@@ -48,22 +50,24 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirm) return showToast("Las contraseñas no coinciden.", "error");
+    if (role === "proveedor") {
+      const requiredFiles = ["docCedula", "docAntecedentes", "docOficio", "profileImage", "verificationFrontImage", "verificationSideImage"];
+      const missing = requiredFiles.filter((key) => !files[key]);
+      if (missing.length) return showToast("Selecciona los tres documentos y las tres fotografías obligatorias", "error");
+    }
     setLoading(true);
     try {
-      const user = await register({ name: form.name, email: form.email, password: form.password, role, phone: form.phone, city: form.city });
-      localStorage.setItem("pendingVerificationEmail", form.email);
+      const fd = new FormData();
+      Object.entries({ name: form.name, email: form.email, password: form.password, role, phone: form.phone, city: form.city, termsAccepted: true }).forEach(([key, value]) => fd.append(key, value));
       if (role === "proveedor") {
-        const fd = new FormData();
-        Object.entries(provider).forEach(([k, v]) => fd.append(k, v));
-        fd.append("city", form.city);
-        fd.append("phone", form.phone);
-        if (provider.category === "otra" && provider.customCategory) {
-          fd.append("customCategory", provider.customCategory);
-        }
-        Object.entries(files).forEach(([k, v]) => { if (v) fd.append(k, v); });
-        await api.put("/providers/register", fd, { headers: { "Content-Type": "multipart/form-data" } });
+        Object.entries(provider).forEach(([key, value]) => fd.append(key, value));
+        fd.append("categoryName", CATEGORIES.find((item) => item.id === provider.category)?.name || provider.customCategory);
+        Object.entries(files).forEach(([key, value]) => { if (value) fd.append(key, value); });
       }
-      showToast("Cuenta creada. Verifica tu correo electrónico.");
+      const data = await register(fd);
+      localStorage.setItem("pendingVerificationEmail", form.email);
+      if (data.hint) localStorage.setItem("pendingVerificationHint", data.hint);
+      showToast(data.deliveryMode === "development" ? "Cuenta creada. Usa el código mostrado en pantalla." : "Cuenta creada. Verifica tu correo electrónico.");
       navigate("/verificar-email?email=" + encodeURIComponent(form.email));
     } catch (err) {
       showToast(err.response?.data?.error || "Error al registrarse", "error");
@@ -154,6 +158,14 @@ export default function Register() {
                     <textarea value={provider.description} onChange={(e) => setProvider({ ...provider, description: e.target.value })} rows={3} placeholder="Describe qué servicios ofreces y tu experiencia." required className="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all resize-y" />
                   </div>
                 </div>
+                <div className="grid sm:grid-cols-3 gap-4 pt-2 border-t border-gray-200">
+                  {[{ n: "profileImage", l: "Foto de perfil" }, { n: "verificationFrontImage", l: "Foto frontal" }, { n: "verificationSideImage", l: "Foto lateral" }].map((f) => (
+                    <div key={f.n}>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">{f.l}</label>
+                      <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={(e) => setFiles((current) => ({ ...current, [f.n]: e.target.files[0] }))} required className="w-full text-xs text-gray-500 file:mb-1 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700" />
+                    </div>
+                  ))}
+                </div>
               </section>
 
               <section className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
@@ -166,7 +178,7 @@ export default function Register() {
                   {[{ n: "docCedula", l: "Copia de cédula" }, { n: "docAntecedentes", l: "Certificado de no antecedentes" }, { n: "docOficio", l: "Certificado de experiencia" }, { n: "docRuc", l: "RUC/RIMPE (opcional)" }].map((f) => (
                     <div key={f.n}>
                       <label className="block text-xs font-semibold text-gray-700 mb-1">{f.l}</label>
-                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFiles({ ...files, [f.n]: e.target.files[0] })} required={f.n !== "docRuc"} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" />
+                      <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFiles((current) => ({ ...current, [f.n]: e.target.files[0] }))} required={f.n !== "docRuc"} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" />
                     </div>
                   ))}
                 </div>
@@ -175,8 +187,8 @@ export default function Register() {
           )}
 
           <label className="flex items-start gap-2.5 text-xs text-gray-500 font-medium">
-            <input type="checkbox" required className="mt-0.5 w-4 h-4 accent-blue-600" />
-            <span>Acepto los términos de uso y el tratamiento de datos para la validación de la cuenta.</span>
+            <input type="checkbox" required checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-0.5 w-4 h-4 accent-blue-600" />
+            <span>Acepto los <button type="button" onClick={() => setShowTerms(true)} className="text-blue-600 font-bold hover:underline">términos de uso y tratamiento de datos</button> para la validación de la cuenta.</span>
           </label>
 
           <button type="submit" disabled={loading} className="btn btn-primary btn-full">
@@ -188,6 +200,20 @@ export default function Register() {
           ¿Ya tienes cuenta? <Link to="/login" className="text-blue-600 font-bold hover:underline">Inicia sesión</Link>
         </p>
       </div>
+      {showTerms && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="bg-white rounded-2xl max-w-lg max-h-[80vh] overflow-y-auto p-6 shadow-xl">
+            <h2 className="text-lg font-extrabold mb-3">Términos de uso y privacidad</h2>
+            <div className="space-y-3 text-sm text-gray-600">
+              <p>ServicioYa ECU conecta clientes con proveedores independientes. Cada parte conserva sus obligaciones profesionales y legales.</p>
+              <p>Los datos de contacto, ubicación e identificación se utilizan para operar la cuenta, gestionar solicitudes, prevenir fraude y verificar proveedores.</p>
+              <p>Los documentos de validación son privados y solo pueden ser revisados por administradores autorizados. Puedes solicitar la corrección o eliminación de tus datos conforme a la normativa ecuatoriana.</p>
+              <p>Al aceptar confirmas que la información es verdadera y autorizas su tratamiento para estas finalidades. Versión: 23-07-2026.</p>
+            </div>
+            <button type="button" onClick={() => setShowTerms(false)} className="btn btn-primary btn-full mt-5">Cerrar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

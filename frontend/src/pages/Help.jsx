@@ -1,27 +1,10 @@
-import { useNavigate } from "react-router-dom";
-import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
-import api from "../api/client";
 
 export default function Help() {
-  const showToast = useToast();
-  const navigate = useNavigate();
-
-  const resetDemo = async () => {
-    try {
-      await api.post("/auth/reset-demo");
-      localStorage.clear();
-      showToast("Datos demo reiniciados.");
-      navigate("/");
-    } catch {
-      showToast("Función disponible en demo.", "error");
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
       <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Ayuda</h1>
-      <p className="text-gray-500 mt-1 mb-6">Resumen de uso del avance funcional de ServicioYa ECU.</p>
+      <p className="text-gray-500 mt-1 mb-6">Guía rápida para utilizar ServicioYa ECU.</p>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
@@ -52,9 +35,8 @@ export default function Help() {
         </section>
 
         <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h2 className="font-bold text-gray-900 mb-3"><Icon name="rotate" className="text-blue-600 mr-1.5" /> Reiniciar datos demo</h2>
-          <p className="text-sm text-gray-500 mb-4">Si deseas volver al estado inicial del avance, usa este botón.</p>
-          <button onClick={resetDemo} className="btn btn-danger btn-small"><Icon name="trash" /> Reiniciar demo</button>
+          <h2 className="font-bold text-gray-900 mb-3"><Icon name="circle-question" className="text-blue-600 mr-1.5" /> Soporte</h2>
+          <p className="text-sm text-gray-500">Usa el botón de ayuda ubicado en la esquina inferior derecha para enviar una consulta al equipo de soporte.</p>
         </section>
       </div>
     </div>

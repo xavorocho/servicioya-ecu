@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Icon } from "../UI/helpers";
+import NotificationBell from "../UI/NotificationBell";
+import { getFileUrl } from "../../utils/files";
 
 const publicLinks = [
   { label: "Inicio", path: "/", icon: "house" },
@@ -53,9 +55,9 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 border-b border-gray-200 backdrop-blur-md shadow-sm">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
+      <nav className={`${user?.role === "admin" ? "max-w-[1920px] px-3" : "max-w-7xl px-4 sm:px-6 lg:px-8"} mx-auto`} aria-label="Navegación principal">
         <div className="flex items-center justify-between h-16">
-          <Link to={user ? `/${user.role}/inicio` : "/"} className="flex items-center gap-3 hover:opacity-85 transition-opacity" aria-label="Ir a ServicioYa ECU">
+          <Link to={user ? `/${user.role}/inicio` : "/"} className="flex items-center gap-3 hover:opacity-85 transition-opacity flex-shrink-0" aria-label="Ir a ServicioYa ECU">
             <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
               <Icon name="house-chimney-user" />
             </span>
@@ -75,13 +77,13 @@ export default function Navbar() {
           </button>
 
           <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row lg:items-center gap-1 lg:gap-0 absolute lg:static top-16 left-0 right-0 bg-white lg:bg-transparent border-b lg:border-0 border-gray-200 lg:border-none p-4 lg:p-0 shadow-lg lg:shadow-none z-50`}>
-            <div className="flex flex-col lg:flex-row lg:items-center gap-1 lg:mr-4">
+            <div className={`flex flex-col lg:flex-row lg:items-center gap-1 ${user?.role === "admin" ? "lg:mr-2" : "lg:mr-4"}`}>
               {links.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition-colors ${
+                  className={`flex items-center gap-2 ${user?.role === "admin" ? "lg:px-2 lg:text-xs" : "px-3 text-sm"} px-3 py-2 rounded-full font-semibold transition-colors ${
                     isActive(link.path) ? "bg-blue-50 text-blue-800" : "text-gray-600 hover:bg-gray-100"
                   }`}
                 >
@@ -103,6 +105,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
+                  <NotificationBell />
                   <Link
                     to={`/${user.role}/perfil`}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-blue-200 transition-colors"
@@ -110,12 +113,12 @@ export default function Navbar() {
                   >
                     <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
                       {user.profileImage ? (
-                        <img src={user.profileImage.startsWith("http") ? user.profileImage : `/api/uploads/${user.profileImage}`} alt="" className="w-full h-full object-cover" />
+                        <img src={getFileUrl(user.profileImage)} alt="" className="w-full h-full object-cover" />
                       ) : (
                         initials(user.name)
                       )}
                     </span>
-                    <div className="leading-tight">
+                    <div className={`leading-tight ${user.role === "admin" ? "hidden 2xl:block" : ""}`}>
                       <strong className="block text-sm text-gray-900">{user.name}</strong>
                       <small className="block text-xs text-gray-500 font-medium capitalize">{user.role}</small>
                     </div>

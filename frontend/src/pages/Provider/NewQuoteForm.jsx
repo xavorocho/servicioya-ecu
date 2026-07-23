@@ -11,6 +11,7 @@ export default function NewQuoteForm() {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [evidence, setEvidence] = useState(null);
   const [form, setForm] = useState({
     reason: "",
     laborPrice: "",
@@ -43,8 +44,12 @@ export default function NewQuoteForm() {
       showToast("Precio de mano de obra es requerido", "error");
       return;
     }
+    if (!evidence) return showToast("Adjunta una imagen que justifique el cambio", "error");
     setSubmitting(true);
     try {
+      const evidenceData = new FormData();
+      evidenceData.append("evidence", evidence);
+      await api.post(`/evidence/${requestId}`, evidenceData, { headers: { "Content-Type": "multipart/form-data" } });
       await api.post(`/quotes/new-quote/${requestId}`, {
         reason: form.reason,
         laborPrice: labor,
@@ -108,6 +113,8 @@ export default function NewQuoteForm() {
             placeholder="Ej: Se encontró daño adicional en la instalación eléctrica..."
           />
         </div>
+
+        <div><label className="block text-sm font-semibold text-gray-700 mb-1">Evidencia del cambio *</label><input type="file" accept=".jpg,.jpeg,.png,.webp" required onChange={(event) => setEvidence(event.target.files[0])} className="w-full text-sm" /><p className="text-xs text-gray-500 mt-1">Adjunta una foto del problema adicional encontrado.</p></div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>

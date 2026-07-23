@@ -34,6 +34,7 @@ export default function AdminRequests() {
   const [statusFilter, setStatusFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [detail, setDetail] = useState(null);
 
   useEffect(() => {
     api
@@ -66,6 +67,11 @@ export default function AdminRequests() {
   const formatDate = (d) => {
     if (!d) return "—";
     return new Date(d).toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const showDetail = async (id) => {
+    const { data } = await api.get(`/requests/${id}/admin-detail`);
+    setDetail(data);
   };
 
   if (loading) {
@@ -163,12 +169,13 @@ export default function AdminRequests() {
                   </div>
                 </div>
                 <div className="flex gap-2 flex-shrink-0 sm:ml-4">
-                  <a
-                    href={`/admin/solicitudes/${r.id}`}
+                  <button
+                    type="button"
+                    onClick={() => showDetail(r.id)}
                     className="btn btn-outline btn-small"
                   >
                     <Icon name="circle-info" /> Ver detalle
-                  </a>
+                  </button>
                 </div>
               </div>
             </article>
@@ -201,6 +208,7 @@ export default function AdminRequests() {
           Mostrando {filtered.length} de {total} solicitudes
         </p>
       )}
+      {detail && <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"><div className="bg-white rounded-2xl p-6 w-full max-w-3xl max-h-[85vh] overflow-y-auto"><div className="flex justify-between mb-4"><div><h2 className="text-xl font-extrabold">{detail.displayId}</h2><p className="text-sm text-gray-500">{detail.service}</p></div><button onClick={() => setDetail(null)}><Icon name="xmark" /></button></div><div className="grid sm:grid-cols-2 gap-3 text-sm"><p><strong>Cliente:</strong> {detail.client} · {detail.clientEmail}</p><p><strong>Proveedor:</strong> {detail.providerName}</p><p><strong>Ciudad:</strong> {detail.city}</p><p><strong>Dirección:</strong> {detail.address}</p><p><strong>Estado:</strong> {STATUS_LABELS[detail.status] || detail.status}</p><p><strong>Fecha:</strong> {formatDate(detail.createdAt)}</p><p className="sm:col-span-2"><strong>Descripción:</strong> {detail.description}</p></div><h3 className="font-bold mt-5 mb-2">Cotizaciones</h3>{detail.quotes?.length ? detail.quotes.map((quote) => <div key={quote.id} className="p-3 bg-gray-50 rounded-xl text-sm mb-2">Mano de obra: ${quote.laborPrice} · Con materiales: ${quote.totalWithMaterials} · Sin materiales: ${quote.totalWithoutMaterials} · Estado: {quote.status}</div>) : <p className="text-sm text-gray-500">Sin cotizaciones</p>}<h3 className="font-bold mt-5 mb-2">Pagos</h3>{detail.payments?.length ? detail.payments.map((payment) => <div key={payment.id} className="p-3 bg-gray-50 rounded-xl text-sm mb-2">${payment.amount} · {payment.paymentStatus} · {payment.transactionId || "Sin transacción"}</div>) : <p className="text-sm text-gray-500">Sin pagos</p>}</div></div>}
     </div>
   );
 }

@@ -46,7 +46,7 @@ export default function AdminSupport() {
 
   const markInProgress = async (id) => {
     try {
-      await api.patch(`/support/${id}`, { status: "en_revision" });
+      await api.put(`/support/${id}/status`, { status: "en_revision" });
       setMessages((prev) => prev.map((m) => (m.id === id || m._id === id ? { ...m, status: "en_revision" } : m)));
       showToast("Marcado como en revisión");
     } catch {
@@ -56,7 +56,7 @@ export default function AdminSupport() {
 
   const closeMessage = async (id) => {
     try {
-      await api.patch(`/support/${id}`, { status: "cerrado" });
+      await api.put(`/support/${id}/close`);
       setMessages((prev) => prev.map((m) => (m.id === id || m._id === id ? { ...m, status: "cerrado" } : m)));
       showToast("Mensaje cerrado");
     } catch {
@@ -68,7 +68,7 @@ export default function AdminSupport() {
     const text = responses[id];
     if (!text?.trim()) return showToast("Escribe una respuesta", "error");
     try {
-      await api.patch(`/support/${id}`, { status: "respondido", response: text.trim() });
+      await api.put(`/support/${id}/respond`, { status: "respondido", response: text.trim() });
       setMessages((prev) => prev.map((m) => (m.id === id || m._id === id ? { ...m, status: "respondido", response: text.trim() } : m)));
       setResponses((prev) => ({ ...prev, [id]: "" }));
       showToast("Respuesta enviada");
@@ -148,7 +148,7 @@ export default function AdminSupport() {
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
                     <span className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 text-xs font-extrabold flex-shrink-0 capitalize">
-                      {msg.user?.name?.[0] || "?"}
+                      {msg.userName?.[0] || "?"}
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -158,9 +158,10 @@ export default function AdminSupport() {
                         </span>
                       </div>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 font-semibold">
-                        <span className="flex items-center gap-1"><Icon name="user" className="text-[0.7rem]" /> {msg.user?.name || "—"}</span>
-                        <span className="flex items-center gap-1"><Icon name="envelope" className="text-[0.7rem]" /> {msg.user?.email || "—"}</span>
-                        <span className="flex items-center gap-1 capitalize"><Icon name="shield-halved" className="text-[0.7rem]" /> {msg.user?.role || "—"}</span>
+                        <span className="flex items-center gap-1"><Icon name="user" className="text-[0.7rem]" /> {msg.userName || "—"}</span>
+                        <span className="flex items-center gap-1"><Icon name="envelope" className="text-[0.7rem]" /> {msg.userEmail || "—"}</span>
+                        <span className="flex items-center gap-1 capitalize"><Icon name="shield-halved" className="text-[0.7rem]" /> {msg.userRole || "—"}</span>
+                        <span className={`px-2 py-0.5 rounded-full ${msg.priority === "urgente" || msg.priority === "alta" ? "bg-red-100 text-red-700" : "bg-gray-100"}`}>Prioridad: {msg.priority || "media"}</span>
                         <span className="flex items-center gap-1"><Icon name="clock" className="text-[0.7rem]" /> {formatDate(msg.createdAt)}</span>
                       </div>
                     </div>
