@@ -18,7 +18,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:3000"], credentials: true }));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://servicioya-ecu.vercel.app",
+];
+app.use(cors({ origin: (origin, cb) => {
+  if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+  else cb(new Error("No permitido por CORS"));
+}, credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
