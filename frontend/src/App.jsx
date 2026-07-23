@@ -18,6 +18,7 @@ import ProviderRequests from "./pages/Provider/ProviderRequests";
 import ProviderProfileEdit from "./pages/Provider/ProviderProfileEdit";
 import ProviderDocuments from "./pages/Provider/ProviderDocuments";
 import QuoteForm from "./pages/Provider/QuoteForm";
+import NewQuoteForm from "./pages/Provider/NewQuoteForm";
 import AdminHome from "./pages/Admin/AdminHome";
 import AdminVerifications from "./pages/Admin/AdminVerifications";
 import AdminUsers from "./pages/Admin/AdminUsers";
@@ -25,8 +26,10 @@ import AdminProviders from "./pages/Admin/AdminProviders";
 import AdminCategories from "./pages/Admin/AdminCategories";
 import AdminReports from "./pages/Admin/AdminReports";
 import AdminRequests from "./pages/Admin/AdminRequests";
+import AdminSupport from "./pages/Admin/AdminSupport";
 import ProviderWorkDetail from "./pages/Provider/ProviderWorkDetail";
 import ClientRequestDetail from "./pages/Client/ClientRequestDetail";
+import ClientPublicProfile from "./pages/Client/ClientPublicProfile";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 
 export default function App() {
@@ -56,7 +59,9 @@ export default function App() {
         <Route path="/proveedor/solicitudes" element={<ProtectedRoute role="proveedor"><ProviderRequests /></ProtectedRoute>} />
         <Route path="/proveedor/solicitud/:requestId" element={<ProtectedRoute role="proveedor"><ProviderWorkDetail /></ProtectedRoute>} />
         <Route path="/proveedor/cotizar/:requestId" element={<ProtectedRoute role="proveedor"><QuoteForm /></ProtectedRoute>} />
+        <Route path="/proveedor/nueva-cotizacion/:requestId" element={<ProtectedRoute role="proveedor"><NewQuoteForm /></ProtectedRoute>} />
         <Route path="/proveedor/perfil" element={<ProtectedRoute role="proveedor"><ProviderProfileEdit /></ProtectedRoute>} />
+        <Route path="/proveedor/cliente/:email" element={<ProtectedRoute role="proveedor"><ClientPublicProfile /></ProtectedRoute>} />
         <Route path="/proveedor/documentos" element={<ProtectedRoute role="proveedor"><ProviderDocuments /></ProtectedRoute>} />
 
         <Route path="/admin/inicio" element={<ProtectedRoute role="admin"><AdminHome /></ProtectedRoute>} />
@@ -66,6 +71,7 @@ export default function App() {
         <Route path="/admin/proveedores" element={<ProtectedRoute role="admin"><AdminProviders /></ProtectedRoute>} />
         <Route path="/admin/categorias" element={<ProtectedRoute role="admin"><AdminCategories /></ProtectedRoute>} />
         <Route path="/admin/reportes" element={<ProtectedRoute role="admin"><AdminReports /></ProtectedRoute>} />
+        <Route path="/admin/soporte" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

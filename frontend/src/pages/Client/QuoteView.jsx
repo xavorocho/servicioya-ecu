@@ -61,6 +61,34 @@ export default function QuoteView() {
     }
   };
 
+  const handleAcceptNewQuote = async () => {
+    setProcessing(true);
+    try {
+      await api.put(`/quotes/${quote.id}/accept-new-quote`);
+      showToast("Nueva cotización aceptada. El trabajo continúa.");
+      setQuote({ ...quote, status: "aceptada" });
+      setRequest({ ...request, status: "en_proceso" });
+    } catch (err) {
+      showToast(err.response?.data?.error || "Error al aceptar", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRejectNewQuote = async () => {
+    if (!confirm("¿Estás seguro de rechazar esta nueva cotización? La solicitud será cancelada.")) return;
+    setProcessing(true);
+    try {
+      await api.put(`/quotes/${quote.id}/reject-new-quote`);
+      showToast("Nueva cotización rechazada. Solicitud cancelada.");
+      navigate("/cliente/solicitudes");
+    } catch (err) {
+      showToast(err.response?.data?.error || "Error al rechazar", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleProposeTime = async () => {
     if (!newTime) return;
     setProcessing(true);
@@ -210,6 +238,59 @@ export default function QuoteView() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {request.status === "nueva_cotizacion_enviada" && (
+        <div className="bg-white rounded-2xl border border-amber-200 p-6 shadow-sm">
+          <div className="bg-amber-50 rounded-xl border border-amber-200 p-4 mb-4">
+            <p className="text-sm text-amber-800 font-medium flex items-center gap-2">
+              <Icon name="alert-triangle" className="w-5 h-5" />
+              El proveedor ha enviado una nueva cotización debido a cambios en el trabajo.
+            </p>
+          </div>
+
+          <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Icon name="dollar-sign" className="text-amber-600" /> Nueva cotización
+          </h2>
+
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+              <p className="text-xs text-emerald-700 font-bold uppercase tracking-wide mb-1">Opción B: Sin materiales</p>
+              <p className="text-2xl font-extrabold text-emerald-800">${quote.totalWithoutMaterials.toFixed(2)}</p>
+              <p className="text-xs text-emerald-600 mt-1">Mano de obra: ${quote.laborPrice.toFixed(2)}</p>
+              <p className="text-xs text-emerald-600">Tú compras los materiales</p>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+              <p className="text-xs text-blue-700 font-bold uppercase tracking-wide mb-1">Opción A: Con materiales</p>
+              <p className="text-2xl font-extrabold text-blue-800">${quote.totalWithMaterials.toFixed(2)}</p>
+              <p className="text-xs text-blue-600 mt-1">Mano de obra: ${quote.laborPrice.toFixed(2)} + Materiales: ${quote.materialsPrice.toFixed(2)}</p>
+              <p className="text-xs text-blue-600">El proveedor compra todo</p>
+            </div>
+          </div>
+
+          {quote.materialsDetail && (
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-100">
+              <p className="text-xs font-bold text-gray-700 mb-1">Materiales detallados:</p>
+              <p className="text-sm text-gray-600">{quote.materialsDetail}</p>
+            </div>
+          )}
+
+          {quote.providerNote && (
+            <div className="bg-amber-50 rounded-xl p-4 border border-amber-200 mb-4">
+              <p className="text-xs font-bold text-amber-700 mb-1">Motivo del cambio:</p>
+              <p className="text-sm text-amber-800">{quote.providerNote}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={handleAcceptNewQuote} disabled={processing} className="btn btn-primary flex-1 bg-green-600 hover:bg-green-700">
+              {processing ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <><Icon name="check" /> Aceptar nueva cotización</>}
+            </button>
+            <button onClick={handleRejectNewQuote} disabled={processing} className="btn btn-danger flex-1">
+              <Icon name="ban" /> Rechazar y cancelar
+            </button>
+          </div>
         </div>
       )}
 

@@ -12,6 +12,7 @@ function StatusBadge({ status }) {
     confirmada: { label: "Confirmada", color: "bg-green-100 text-green-800" },
     confirmada_pagada: { label: "Confirmada y pagada", color: "bg-green-200 text-green-900" },
     en_proceso: { label: "En proceso", color: "bg-indigo-100 text-indigo-800" },
+    nueva_cotizacion_enviada: { label: "Nueva cotización enviada", color: "bg-amber-100 text-amber-800" },
     completada: { label: "Completada", color: "bg-green-100 text-green-800" },
     cancelada: { label: "Cancelada", color: "bg-red-100 text-red-800" },
   };
@@ -512,14 +513,23 @@ export default function ProviderWorkDetail() {
           )}
 
           {(request.status === "en_proceso" || request.estado === "en_proceso") && (
-            <button
-              onClick={completeWork}
-              disabled={completing}
-              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white px-5 py-2.5 rounded-xl font-medium transition-colors"
-            >
-              <Icon name="check-circle" className="w-5 h-5" />
-              {completing ? "Completando..." : "Marcar como completado"}
-            </button>
+            <>
+              <button
+                onClick={completeWork}
+                disabled={completing}
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white px-5 py-2.5 rounded-xl font-medium transition-colors"
+              >
+                <Icon name="check-circle" className="w-5 h-5" />
+                {completing ? "Completando..." : "Marcar como completado"}
+              </button>
+              <Link
+                to={`/proveedor/nueva-cotizacion/${request.id}`}
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-medium transition-colors"
+              >
+                <Icon name="file-plus" className="w-5 h-5" />
+                Enviar nueva cotización
+              </Link>
+            </>
           )}
 
           <button

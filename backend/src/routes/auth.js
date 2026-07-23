@@ -84,4 +84,30 @@ router.get("/me", authenticate, async (req, res) => {
   }
 });
 
+router.get("/user/:email", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: req.params.email },
+      select: { name: true, email: true, phone: true, city: true, role: true, createdAt: true },
+    });
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+    
+    const requests = await prisma.request.findMany({
+      where: { clientEmail: req.params.email },
+      select: { id: true, service: true, status: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    });
+    
+    const reviews = await prisma.review.findMany({
+      where: { clientEmail: req.params.email },
+      select: { rating: true, comment: true, createdAt: true },
+    });
+    
+    res.json({ ...user, requests, reviews });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

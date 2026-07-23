@@ -30,6 +30,7 @@ const roleLinks = {
     { label: "Proveedores", path: "/admin/proveedores", icon: "toolbox" },
     { label: "Categorías", path: "/admin/categorias", icon: "tags" },
     { label: "Reportes", path: "/admin/reportes", icon: "chart-column" },
+    { label: "Soporte", path: "/admin/soporte", icon: "headset" },
   ],
 };
 
