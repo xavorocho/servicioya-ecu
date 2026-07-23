@@ -3,9 +3,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 import { authenticate } from "../middleware/auth.js";
+import { OAuth2Client } from "google-auth-library";
 
 const router = Router();
 const prisma = new PrismaClient();
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 router.post("/register", async (req, res) => {
   try {
@@ -50,6 +52,57 @@ router.post("/register", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/google", async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) return res.status(400).json({ error: "Token de Google requerido" });
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture, sub: googleId } = payload;
+
+    let user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name,
+          email: email.toLowerCase(),
+          password: await bcrypt.hash(googleId, 10),
+          role: "cliente",
+          phone: "",
+          city: "",
+          status: "Activo",
+          emailVerified: true,
+          profileImage: picture || "",
+          authProvider: "google",
+        },
+      });
+    } else if (!user.profileImage && picture) {
+      await prisma.user.update({ where: { id: user.id }, data: { profileImage: picture } });
+      user.profileImage = picture;
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, phone: user.phone, city: user.city, status: user.status, providerId: user.providerId, profileImage: user.profileImage },
+    });
+  } catch (err) {
+    console.error("[GOOGLE AUTH ERROR]", err.message);
+    res.status(500).json({ error: "Error al autenticar con Google" });
   }
 });
 

@@ -19,6 +19,7 @@ model User {
   profileImage String   @default("")
   emailVerified Boolean  @default(false)
   verificationToken String?
+  authProvider String   @default("local")
   providerId   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

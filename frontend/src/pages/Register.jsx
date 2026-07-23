@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
 import api from "../api/client";
+import { GoogleLogin } from "@react-oauth/google";
 
 const CATEGORIES = [
   { id: "plomeria", name: "Plomería" }, { id: "electricidad", name: "Electricidad" },
@@ -22,7 +23,7 @@ const CITIES = [
 ];
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
   const showToast = useToast();
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,19 @@ export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", password: "", confirm: "" });
   const [provider, setProvider] = useState({ category: "", sector: "", experience: "", price: "", description: "", customCategory: "" });
   const [files, setFiles] = useState({ docCedula: null, docAntecedentes: null, docOficio: null, docRuc: null });
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const user = await googleLogin(credentialResponse.credential);
+      showToast(`Bienvenido, ${user.name}.`);
+      navigate(`/${user.role}/inicio`);
+    } catch (err) {
+      showToast("Error al autenticar con Google", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,6 +79,22 @@ export default function Register() {
           <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xl mx-auto mb-4"><Icon name="user-plus" /></span>
           <h1 className="text-xl font-extrabold text-gray-900">ServicioYa ECU</h1>
           <p className="text-sm text-gray-500 mt-1">Selecciona el tipo de cuenta que deseas crear.</p>
+        </div>
+
+        <div className="flex justify-center mb-5">
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => showToast("Error al iniciar sesión con Google", "error")}
+              text="signup_with"
+              shape="rectangular"
+              width="100%"
+            />
+          ) : (
+            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center font-medium w-full">
+              Google OAuth no configurado. Agrega <code>VITE_GOOGLE_CLIENT_ID</code> en .env.
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-6">

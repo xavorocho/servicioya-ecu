@@ -5,6 +5,9 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log("Limpiando base de datos...");
+  await prisma.chatMessage.deleteMany();
+  await prisma.supportMessage.deleteMany();
+  await prisma.pendingSpecialty.deleteMany();
   await prisma.review.deleteMany();
   await prisma.payment.deleteMany();
   await prisma.timeProposal.deleteMany();
@@ -33,18 +36,18 @@ async function main() {
   const password = await bcrypt.hash("123456", 10);
 
   const cliente = await prisma.user.create({
-    data: { name: "Justin Medina", email: "cliente@demo.com", password, role: "cliente", phone: "0990001112", city: "Latacunga", status: "Activo" },
+    data: { name: "Justin Medina", email: "cliente@demo.com", password, role: "cliente", phone: "0990001112", city: "Latacunga", status: "Activo", emailVerified: true },
   });
   const admin = await prisma.user.create({
-    data: { name: "Xavier Yugcha", email: "admin@demo.com", password, role: "admin", phone: "0988887777", city: "Latacunga", status: "Activo" },
+    data: { name: "Xavier Yugcha", email: "admin@demo.com", password, role: "admin", phone: "0988887777", city: "Latacunga", status: "Activo", emailVerified: true },
   });
 
   console.log("Creando proveedores demo...");
   const proveedorUser = await prisma.user.create({
-    data: { name: "Juan Pérez", email: "proveedor@demo.com", password, role: "proveedor", phone: "0991112223", city: "Latacunga", status: "Aprobado" },
+    data: { name: "Juan Pérez", email: "proveedor@demo.com", password, role: "proveedor", phone: "0991112223", city: "Latacunga", status: "Aprobado", emailVerified: true },
   });
   const pendienteUser = await prisma.user.create({
-    data: { name: "Pedro Loján", email: "pendiente@demo.com", password, role: "proveedor", phone: "0946667778", city: "Riobamba", status: "Pendiente" },
+    data: { name: "Pedro Loján", email: "pendiente@demo.com", password, role: "proveedor", phone: "0946667778", city: "Riobamba", status: "Pendiente", emailVerified: true },
   });
 
   const catPlomeria = categories.find((c) => c.slug === "plomeria");

@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const showToast = useToast();
   const [loading, setLoading] = useState(false);
@@ -49,6 +50,19 @@ export default function Login() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const user = await googleLogin(credentialResponse.credential);
+      showToast(`Bienvenido, ${user.name}.`);
+      navigate(`/${user.role}/inicio`);
+    } catch (err) {
+      showToast("Error al autenticar con Google", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto px-4 py-12 animate-fade-in">
       <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
@@ -57,7 +71,7 @@ export default function Login() {
             <Icon name="house-chimney-user" />
           </span>
           <h1 className="text-xl font-extrabold text-gray-900">ServicioYa ECU</h1>
-          <p className="text-sm text-gray-500 mt-1">Usa una cuenta demo o tus datos registrados.</p>
+          <p className="text-sm text-gray-500 mt-1">Usa una cuenta demo, Google o tus datos registrados.</p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mb-5">
@@ -74,6 +88,27 @@ export default function Login() {
               <strong className="text-[0.65rem] text-gray-800">{d.label}</strong>
             </button>
           ))}
+        </div>
+
+        <div className="relative my-5">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-3 text-gray-400 font-semibold">O continúa con</span></div>
+        </div>
+
+        <div className="flex justify-center mb-5">
+          {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => showToast("Error al iniciar sesión con Google", "error")}
+              text="continue_with"
+              shape="rectangular"
+              width="100%"
+            />
+          ) : (
+            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 text-center font-medium">
+              Google OAuth no configurado. Agrega <code>VITE_GOOGLE_CLIENT_ID</code> en .env.
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
