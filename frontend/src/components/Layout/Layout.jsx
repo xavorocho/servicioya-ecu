@@ -1,6 +1,7 @@
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Toast from "../UI/Toast";
+import HelpButton from "../UI/HelpButton";
 
 export default function Layout({ children }) {
   return (
@@ -12,6 +13,7 @@ export default function Layout({ children }) {
       </main>
       <Footer />
       <Toast />
+      <HelpButton />
     </div>
   );
 }

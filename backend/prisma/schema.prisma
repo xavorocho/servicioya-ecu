@@ -182,3 +182,19 @@ model Review {
   request  Request?  @relation(fields: [requestId], references: [id])
   provider Provider? @relation(fields: [providerId], references: [id])
 }
+
+model SupportMessage {
+  id           String   @id @default(uuid())
+  userId       String
+  userEmail    String
+  userRole     String
+  userName     String
+  subject      String
+  message      String
+  status       String   @default("nuevo")
+  response     String?
+  respondedBy  String?
+  respondedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
