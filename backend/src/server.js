@@ -16,6 +16,7 @@ import categoryRoutes from "./routes/categories.js";
 import supportRoutes from "./routes/support.js";
 import evidenceRoutes from "./routes/evidence.js";
 import chatRoutes from "./routes/chat.js";
+import specialtyRoutes from "./routes/specialties.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/evidence", evidenceRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/specialties", specialtyRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", version: "2.0.0" }));
 

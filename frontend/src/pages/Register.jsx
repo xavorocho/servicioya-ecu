@@ -37,6 +37,7 @@ export default function Register() {
     setLoading(true);
     try {
       const user = await register({ name: form.name, email: form.email, password: form.password, role, phone: form.phone, city: form.city });
+      localStorage.setItem("pendingVerificationEmail", form.email);
       if (role === "proveedor") {
         const fd = new FormData();
         Object.entries(provider).forEach(([k, v]) => fd.append(k, v));
@@ -47,12 +48,9 @@ export default function Register() {
         }
         Object.entries(files).forEach(([k, v]) => { if (v) fd.append(k, v); });
         await api.put("/providers/register", fd, { headers: { "Content-Type": "multipart/form-data" } });
-        showToast("Cuenta creada. Tu perfil quedó pendiente de verificación.");
-        navigate("/proveedor/documentos");
-      } else {
-        showToast("Cuenta de cliente creada correctamente.");
-        navigate("/cliente/inicio");
       }
+      showToast("Cuenta creada. Verifica tu correo electrónico.");
+      navigate("/verificar-email?email=" + encodeURIComponent(form.email));
     } catch (err) {
       showToast(err.response?.data?.error || "Error al registrarse", "error");
     } finally {

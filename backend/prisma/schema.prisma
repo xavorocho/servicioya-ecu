@@ -15,10 +15,13 @@ model User {
   role       String   @default("cliente")
   phone      String   @default("")
   city       String   @default("")
-  status     String   @default("Activo")
-  providerId String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  status       String   @default("Activo")
+  profileImage String   @default("")
+  emailVerified Boolean  @default(false)
+  verificationToken String?
+  providerId   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Category {
@@ -212,4 +215,17 @@ model ChatMessage {
   createdAt    DateTime @default(now())
 
   request Request? @relation(fields: [requestId], references: [id])
+}
+
+model PendingSpecialty {
+  id              String   @id @default(uuid())
+  providerId      String
+  providerEmail   String
+  providerName    String
+  specialtyName   String
+  status          String   @default("pendiente")
+  adminNote       String?
+  associatedCategoryId String?
+  createdAt       DateTime @default(now())
+  reviewedAt      DateTime?
 }

@@ -19,7 +19,13 @@ export default function Login() {
       showToast(`Bienvenido, ${user.name}.`);
       navigate(`/${user.role}/inicio`);
     } catch (err) {
-      showToast(err.response?.data?.error || "Error al iniciar sesión", "error");
+      if (err.response?.data?.requiresVerification) {
+        localStorage.setItem("pendingVerificationEmail", err.response.data.email);
+        showToast("Debes verificar tu correo electrónico", "error");
+        navigate("/verificar-email?email=" + encodeURIComponent(err.response.data.email));
+      } else {
+        showToast(err.response?.data?.error || "Error al iniciar sesión", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -32,7 +38,12 @@ export default function Login() {
       showToast(`Sesión iniciada como ${user.role}.`);
       navigate(`/${user.role}/inicio`);
     } catch (err) {
-      showToast("Error al iniciar sesión demo", "error");
+      if (err.response?.data?.requiresVerification) {
+        localStorage.setItem("pendingVerificationEmail", err.response.data.email);
+        navigate("/verificar-email?email=" + encodeURIComponent(err.response.data.email));
+      } else {
+        showToast("Error al iniciar sesión demo", "error");
+      }
     } finally {
       setLoading(false);
     }

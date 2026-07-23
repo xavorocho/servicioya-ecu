@@ -107,23 +107,30 @@ export default function QuoteView() {
   const handleProcessPayment = async () => {
     setPaymentProcessing(true);
     try {
-      await api.put(`/requests/${requestId}/status`, { status: "confirmada_pagada" });
-      await api.post(`/payments/${quote.id}/process`, { method: "payphone" });
-      showToast("Pago de reserva procesado exitosamente");
+      let paymentId = quote.id;
+      let payRes;
+      try {
+        payRes = await api.get("/payments");
+        const myPayment = payRes.data.find((p) => p.requestId === requestId && p.paymentStatus === "pendiente");
+        if (myPayment) paymentId = myPayment.id;
+      } catch (_) {}
+
+      const res = await api.post(`/payments/${paymentId}/process`, { method: "payphone" });
+      const data = res.data;
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+        return;
+      }
+
+      if (data.simulation) {
+        showToast(data.message || "Pago simulado exitosamente");
+      } else {
+        showToast("Pago procesado exitosamente");
+      }
       setRequest({ ...request, status: "confirmada_pagada" });
     } catch (err) {
-      try {
-        const payRes = await api.get("/payments");
-        const myPayment = payRes.data.find((p) => p.requestId === requestId && p.paymentStatus === "pendiente");
-        if (myPayment) {
-          await api.put(`/payments/${myPayment.id}/process`, { method: "payphone" });
-          await api.put(`/requests/${requestId}/status`, { status: "confirmada_pagada" });
-          showToast("Pago procesado");
-          setRequest({ ...request, status: "confirmada_pagada" });
-        }
-      } catch (e) {
-        showToast("Error al procesar pago", "error");
-      }
+      showToast(err.response?.data?.error || "Error al procesar pago", "error");
     } finally {
       setPaymentProcessing(false);
     }
@@ -303,6 +310,11 @@ export default function QuoteView() {
           <button onClick={handleProcessPayment} disabled={paymentProcessing} className="btn btn-primary btn-full">
             {paymentProcessing ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <><Icon name="dollar-sign" /> Pagar reserva (PayPhone)</>}
           </button>
+          {!import.meta.env.VITE_PAYPHONE_TOKEN && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-3">
+              Modo simulación - En producción se redirige a PayPhone
+            </div>
+          )}
         </div>
       )}
 

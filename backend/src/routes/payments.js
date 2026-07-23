@@ -53,24 +53,107 @@ router.get("/stats", authenticate, authorize("admin"), async (req, res) => {
   }
 });
 
+router.post("/webhook/payphone", async (req, res) => {
+  try {
+    const { clientTransactionId, transactionId, status } = req.body;
+
+    if (status === "Approved") {
+      await prisma.payment.update({
+        where: { id: clientTransactionId },
+        data: { paymentStatus: "completado", transactionId: String(transactionId) },
+      });
+      const payment = await prisma.payment.findUnique({ where: { id: clientTransactionId } });
+      if (payment) {
+        await prisma.request.update({
+          where: { id: payment.requestId },
+          data: { status: "confirmada_pagada" },
+        });
+      }
+    } else {
+      await prisma.payment.update({
+        where: { id: clientTransactionId },
+        data: { paymentStatus: "fallido" },
+      });
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/:id/process", authenticate, async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({ where: { id: req.params.id } });
     if (!payment) return res.status(404).json({ error: "Pago no encontrado" });
+    if (payment.clientEmail !== req.user.email) return res.status(403).json({ error: "No autorizado" });
 
-    const { transactionId, method } = req.body;
-    const updated = await prisma.payment.update({
-      where: { id: req.params.id },
-      data: {
-        paymentStatus: "completado",
-        transactionId: transactionId || `PP-${Date.now()}`,
-        paymentMethod: method || "payphone",
+    const PAYPHONE_TOKEN = process.env.PAYPHONE_TOKEN;
+
+    if (!PAYPHONE_TOKEN) {
+      const txId = `SIM-${Date.now()}`;
+      await prisma.payment.update({
+        where: { id: req.params.id },
+        data: { paymentStatus: "completado", transactionId: txId },
+      });
+      await prisma.request.update({
+        where: { id: payment.requestId },
+        data: { status: "confirmada_pagada" },
+      });
+      return res.json({
+        success: true,
+        transactionId: txId,
+        simulation: true,
+        message: "Pago simulado (PayPhone no configurado)",
+      });
+    }
+
+    const payphoneResponse = await fetch("https://pay.payphonemodule.com/api/button/Session", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${PAYPHONE_TOKEN}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        amount: Math.round(payment.amount * 100),
+        amountWithoutTax: Math.round(payment.amount * 100),
+        amountWithTax: 0,
+        tax: 0,
+        service: 0,
+        tip: 0,
+        clientTransactionId: payment.id,
+        storeId: process.env.PAYPHONE_STORE_ID || "1",
+        reference: `ServicioYa - ${payment.requestId}`,
+      }),
     });
 
-    await prisma.request.update({ where: { id: payment.requestId }, data: { status: "confirmada_pagada" } });
+    if (!payphoneResponse.ok) {
+      throw new Error("Error al crear transacción en PayPhone");
+    }
 
-    res.json(updated);
+    const { id: payphoneTxId, paymentId } = await payphoneResponse.json();
+
+    await prisma.payment.update({
+      where: { id: req.params.id },
+      data: { transactionId: String(payphoneTxId) },
+    });
+
+    res.json({
+      success: true,
+      payphoneId: payphoneTxId,
+      paymentId,
+      redirectUrl: `https://pay.payphonemodule.com/Payment?paymentId=${paymentId}`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/:id/status", authenticate, async (req, res) => {
+  try {
+    const payment = await prisma.payment.findUnique({ where: { id: req.params.id } });
+    if (!payment) return res.status(404).json({ error: "Pago no encontrado" });
+    res.json({ status: payment.paymentStatus, transactionId: payment.transactionId });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

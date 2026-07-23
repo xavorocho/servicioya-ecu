@@ -135,6 +135,17 @@ router.put("/register", authenticate, authorize("proveedor"), uploadFields, asyn
       data: { status: "Pendiente", providerId: provider.id },
     });
 
+    if (category === "otra" && req.body.customCategory) {
+      await prisma.pendingSpecialty.create({
+        data: {
+          providerId: provider.id,
+          providerEmail: req.user.email,
+          providerName: provider.name,
+          specialtyName: req.body.customCategory,
+        },
+      });
+    }
+
     res.json(provider);
   } catch (err) {
     res.status(500).json({ error: err.message });

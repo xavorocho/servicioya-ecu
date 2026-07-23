@@ -29,6 +29,7 @@ const roleLinks = {
     { label: "Usuarios", path: "/admin/usuarios", icon: "users" },
     { label: "Proveedores", path: "/admin/proveedores", icon: "toolbox" },
     { label: "Categorías", path: "/admin/categorias", icon: "tags" },
+    { label: "Especialidades", path: "/admin/especialidades", icon: "star" },
     { label: "Reportes", path: "/admin/reportes", icon: "chart-column" },
     { label: "Soporte", path: "/admin/soporte", icon: "headset" },
   ],
@@ -107,8 +108,12 @@ export default function Navbar() {
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-blue-200 transition-colors"
                     onClick={() => setMenuOpen(false)}
                   >
-                    <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xs font-bold">
-                      {initials(user.name)}
+                    <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                      {user.profileImage ? (
+                        <img src={user.profileImage.startsWith("http") ? user.profileImage : `/api/uploads/${user.profileImage}`} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        initials(user.name)
+                      )}
                     </span>
                     <div className="leading-tight">
                       <strong className="block text-sm text-gray-900">{user.name}</strong>

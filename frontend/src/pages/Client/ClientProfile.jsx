@@ -11,6 +11,20 @@ export default function ClientProfile() {
   const showToast = useToast();
   const [form, setForm] = useState({ name: user?.name || "", phone: user?.phone || "", city: user?.city || "" });
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("profileImage", file);
+    try {
+      const { data } = await api.put("/users/profile/image", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      updateUser({ ...user, profileImage: data.profileImage });
+      showToast("Foto de perfil actualizada");
+    } catch (err) {
+      showToast("Error al subir imagen", "error");
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -28,6 +42,22 @@ export default function ClientProfile() {
       <div className="grid sm:grid-cols-2 gap-6">
         <section className="bg-white rounded-xl border border-gray-200 p-5 sm:p-6 shadow-sm">
           <h2 className="font-bold text-gray-900 mb-4">Datos personales</h2>
+          <div className="flex flex-col items-center mb-6">
+            <div className="relative group">
+              <div className="w-24 h-24 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center text-blue-600 text-2xl font-bold border-4 border-white shadow-lg">
+                {user?.profileImage ? (
+                  <img src={user.profileImage.startsWith("http") ? user.profileImage : `/api/uploads/${user.profileImage}`} alt="Perfil" className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0) || "U"
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-700 transition-colors">
+                <Icon name="camera" className="w-4 h-4" />
+                <input type="file" accept=".jpg,.jpeg,.png" onChange={handleImageUpload} className="hidden" />
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Foto de perfil</p>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Nombre completo</label><input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" /></div>
             <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Correo electrónico</label><input type="email" value={user?.email} disabled className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm bg-gray-50 text-gray-500" /></div>
