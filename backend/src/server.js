@@ -14,6 +14,7 @@ import reviewRoutes from "./routes/reviews.js";
 import documentRoutes from "./routes/documents.js";
 import categoryRoutes from "./routes/categories.js";
 import supportRoutes from "./routes/support.js";
+import evidenceRoutes from "./routes/evidence.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/support", supportRoutes);
+app.use("/api/evidence", evidenceRoutes);
 
 app.get("/api/health", (req, res) => res.json({ status: "ok", version: "2.0.0" }));
 

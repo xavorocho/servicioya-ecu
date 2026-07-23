@@ -56,9 +56,51 @@ export default function ProviderDocuments() {
             <li className="flex items-center gap-2"><Icon name="tags" className="text-blue-600" /> Documento tributario opcional.</li>
           </ul>
         </section>
+      </div>
 
-        <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-          <h2 className="font-bold text-gray-900 mb-4">Documentos registrados</h2>
+      <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm mt-5">
+        <h2 className="font-bold text-gray-900 mb-4">Fotos del perfil</h2>
+        <p className="text-sm text-gray-500 mb-4">Sube una foto frontal y una lateral para verificación de identidad.</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-xs font-semibold text-gray-700 mb-2 block">Foto frontal</label>
+            <div className="aspect-square rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden relative">
+              {provider?.documents?.fotoFrontal ? (
+                <img src={provider.documents.fotoFrontal.startsWith("http") ? provider.documents.fotoFrontal : `/api/uploads/${provider.documents.fotoFrontal}`} alt="Frontal" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center text-gray-400">
+                  <Icon name="camera" className="w-8 h-8 mx-auto mb-1" />
+                  <span className="text-xs">Sin foto</span>
+                </div>
+              )}
+            </div>
+            <label className="mt-2 btn btn-outline btn-small w-full justify-center cursor-pointer">
+              <Icon name="upload" /> Subir frontal
+              <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => handleUpload(e, "fotoFrontal")} className="hidden" />
+            </label>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-700 mb-2 block">Foto lateral</label>
+            <div className="aspect-square rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden relative">
+              {provider?.documents?.fotoLateral ? (
+                <img src={provider.documents.fotoLateral.startsWith("http") ? provider.documents.fotoLateral : `/api/uploads/${provider.documents.fotoLateral}`} alt="Lateral" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center text-gray-400">
+                  <Icon name="camera" className="w-8 h-8 mx-auto mb-1" />
+                  <span className="text-xs">Sin foto</span>
+                </div>
+              )}
+            </div>
+            <label className="mt-2 btn btn-outline btn-small w-full justify-center cursor-pointer">
+              <Icon name="upload" /> Subir lateral
+              <input type="file" accept=".jpg,.jpeg,.png" onChange={(e) => handleUpload(e, "fotoLateral")} className="hidden" />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm mt-5">
+        <h2 className="font-bold text-gray-900 mb-4">Documentos registrados</h2>
           {
             [
               { label: "Copia de cédula", value: provider?.documents?.cedula },
@@ -80,7 +122,6 @@ export default function ProviderDocuments() {
             ))
           }
         </section>
-      </div>
     </div>
   );
 }

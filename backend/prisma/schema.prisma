@@ -106,6 +106,7 @@ model Request {
   preferredTimeRange String @default("")
   status           String   @default("pendiente_cotizacion")
   images           String   @default("[]")
+  evidence         String   @default("[]")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
