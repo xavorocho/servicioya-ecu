@@ -105,6 +105,7 @@ model Request {
   preferredDate    String   @default("")
   preferredTimeRange String @default("")
   status           String   @default("pendiente_cotizacion")
+  images           String   @default("[]")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

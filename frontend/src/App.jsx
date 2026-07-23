@@ -24,6 +24,9 @@ import AdminUsers from "./pages/Admin/AdminUsers";
 import AdminProviders from "./pages/Admin/AdminProviders";
 import AdminCategories from "./pages/Admin/AdminCategories";
 import AdminReports from "./pages/Admin/AdminReports";
+import AdminRequests from "./pages/Admin/AdminRequests";
+import ProviderWorkDetail from "./pages/Provider/ProviderWorkDetail";
+import ClientRequestDetail from "./pages/Client/ClientRequestDetail";
 import ProtectedRoute from "./components/Layout/ProtectedRoute";
 
 export default function App() {
@@ -46,15 +49,18 @@ export default function App() {
         <Route path="/cliente/solicitar/:id" element={<ProtectedRoute role="cliente"><RequestForm /></ProtectedRoute>} />
         <Route path="/cliente/solicitudes" element={<ProtectedRoute role="cliente"><ClientRequests /></ProtectedRoute>} />
         <Route path="/cliente/cotizacion/:requestId" element={<ProtectedRoute role="cliente"><QuoteView /></ProtectedRoute>} />
+        <Route path="/cliente/solicitud/:requestId" element={<ProtectedRoute role="cliente"><ClientRequestDetail /></ProtectedRoute>} />
         <Route path="/cliente/perfil" element={<ProtectedRoute role="cliente"><ClientProfile /></ProtectedRoute>} />
 
         <Route path="/proveedor/inicio" element={<ProtectedRoute role="proveedor"><ProviderHome /></ProtectedRoute>} />
         <Route path="/proveedor/solicitudes" element={<ProtectedRoute role="proveedor"><ProviderRequests /></ProtectedRoute>} />
+        <Route path="/proveedor/solicitud/:requestId" element={<ProtectedRoute role="proveedor"><ProviderWorkDetail /></ProtectedRoute>} />
         <Route path="/proveedor/cotizar/:requestId" element={<ProtectedRoute role="proveedor"><QuoteForm /></ProtectedRoute>} />
         <Route path="/proveedor/perfil" element={<ProtectedRoute role="proveedor"><ProviderProfileEdit /></ProtectedRoute>} />
         <Route path="/proveedor/documentos" element={<ProtectedRoute role="proveedor"><ProviderDocuments /></ProtectedRoute>} />
 
         <Route path="/admin/inicio" element={<ProtectedRoute role="admin"><AdminHome /></ProtectedRoute>} />
+        <Route path="/admin/solicitudes" element={<ProtectedRoute role="admin"><AdminRequests /></ProtectedRoute>} />
         <Route path="/admin/verificaciones" element={<ProtectedRoute role="admin"><AdminVerifications /></ProtectedRoute>} />
         <Route path="/admin/usuarios" element={<ProtectedRoute role="admin"><AdminUsers /></ProtectedRoute>} />
         <Route path="/admin/proveedores" element={<ProtectedRoute role="admin"><AdminProviders /></ProtectedRoute>} />

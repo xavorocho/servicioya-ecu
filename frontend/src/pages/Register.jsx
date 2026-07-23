@@ -11,9 +11,15 @@ const CATEGORIES = [
   { id: "carpinteria", name: "Carpintería" }, { id: "jardineria", name: "Jardinería" },
   { id: "electrodomesticos", name: "Electrodomésticos" }, { id: "mudanzas", name: "Mudanzas" },
   { id: "cerrajeria", name: "Cerrajería" }, { id: "cuidado", name: "Cuidado del hogar" },
+  { id: "otra", name: "Otra especialidad" },
 ];
 
-const CITIES = ["Quito", "Latacunga", "Ambato", "Pelileo", "Sangolquí", "Riobamba"];
+const CITIES = [
+  "Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo",
+  "Loja", "Ambato", "Riobamba", "Latacunga", "Ibarra", "Esmeraldas", "Tulcán",
+  "Puyo", "Tena", "Nueva Loja", "Babahoyo", "Quevedo", "Milagro", "Salinas",
+  "Santa Elena", "Sangolquí", "Pelileo", "Baños", "Otavalo",
+];
 
 export default function Register() {
   const { register } = useAuth();
@@ -22,7 +28,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("cliente");
   const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", password: "", confirm: "" });
-  const [provider, setProvider] = useState({ category: "", sector: "", experience: "", price: "", description: "" });
+  const [provider, setProvider] = useState({ category: "", sector: "", experience: "", price: "", description: "", customCategory: "" });
   const [files, setFiles] = useState({ docCedula: null, docAntecedentes: null, docOficio: null, docRuc: null });
 
   const handleSubmit = async (e) => {
@@ -36,6 +42,9 @@ export default function Register() {
         Object.entries(provider).forEach(([k, v]) => fd.append(k, v));
         fd.append("city", form.city);
         fd.append("phone", form.phone);
+        if (provider.category === "otra" && provider.customCategory) {
+          fd.append("customCategory", provider.customCategory);
+        }
         Object.entries(files).forEach(([k, v]) => { if (v) fd.append(k, v); });
         await api.put("/providers/register", fd, { headers: { "Content-Type": "multipart/form-data" } });
         showToast("Cuenta creada. Tu perfil quedó pendiente de verificación.");
@@ -103,6 +112,11 @@ export default function Register() {
                       {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
+                  {provider.category === "otra" && (
+                    <div className="sm:col-span-2">
+                      <input type="text" value={provider.customCategory || ""} onChange={(e) => setProvider({ ...provider, customCategory: e.target.value })} placeholder="Escribe tu especialidad (ej: Reparación de piscinas)" required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" />
+                    </div>
+                  )}
                   <input type="text" value={provider.sector} onChange={(e) => setProvider({ ...provider, sector: e.target.value })} placeholder="Sector o zona de cobertura" required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" />
                   <div className="grid grid-cols-2 gap-4">
                     <input type="number" value={provider.experience} onChange={(e) => setProvider({ ...provider, experience: e.target.value })} placeholder="Años de exp." min="0" required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" />

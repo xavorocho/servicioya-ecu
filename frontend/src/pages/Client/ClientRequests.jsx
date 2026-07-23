@@ -102,6 +102,7 @@ export default function ClientRequests() {
             </div>
             <div className="flex gap-2 flex-wrap items-center">
               {getActions(r)}
+              <Link to={`/cliente/solicitud/${r.id}`} className="btn btn-outline btn-small"><Icon name="clipboard-list" /> Ver detalles</Link>
               <Link to={`/perfil/${r.providerId}`} className="btn btn-outline btn-small"><Icon name="user" /> Ver proveedor</Link>
               {["pendiente_cotizacion", "cotizacion_enviada", "confirmada"].includes(r.status) && (
                 <button onClick={() => cancelRequest(r.id)} className="btn btn-danger btn-small ml-auto"><Icon name="ban" /> Cancelar</button>

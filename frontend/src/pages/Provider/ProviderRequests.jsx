@@ -96,14 +96,23 @@ export default function ProviderRequests() {
               {r.status === "pendiente_cotizacion" && (
                 <Link to={`/proveedor/cotizar/${r.id}`} className="btn btn-primary btn-small"><Icon name="file-shield" /> Crear cotización</Link>
               )}
-              {["cotizacion_enviada", "hora_propuesta_cliente"].includes(r.status) && (
+              {r.status === "cotizacion_enviada" && (
                 <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200"><Icon name="clock" /> Esperando respuesta del cliente</span>
               )}
+              {r.status === "hora_propuesta_cliente" && (
+                <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-200"><Icon name="clock" /> El cliente propuso otra hora</span>
+              )}
               {r.status === "confirmada" && (
-                <button onClick={() => startWork(r.id)} className="btn btn-primary btn-small"><Icon name="spinner" /> Iniciar trabajo</button>
+                <>
+                  <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200"><Icon name="circle-check" /> Cliente aceptó — pendiente pago</span>
+                  <button onClick={() => startWork(r.id)} className="btn btn-primary btn-small"><Icon name="spinner" /> Iniciar trabajo</button>
+                </>
               )}
               {r.status === "confirmada_pagada" && (
-                <button onClick={() => startWork(r.id)} className="btn btn-primary btn-small"><Icon name="spinner" /> Iniciar trabajo</button>
+                <>
+                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200"><Icon name="dollar-sign" /> Reserva pagada</span>
+                  <button onClick={() => startWork(r.id)} className="btn btn-primary btn-small"><Icon name="spinner" /> Iniciar trabajo</button>
+                </>
               )}
               {r.status === "en_proceso" && (
                 <button onClick={() => completeWork(r.id)} className="btn btn-primary btn-small"><Icon name="check-double" /> Completar trabajo</button>
@@ -114,7 +123,7 @@ export default function ProviderRequests() {
               {r.status === "calificada" && (
                 <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200"><Icon name="award" /> Finalizado</span>
               )}
-              {r.providerId && <Link to={`/perfil/${r.providerId}`} className="btn btn-outline btn-small"><Icon name="user" /> Ver perfil</Link>}
+              <Link to={`/proveedor/solicitud/${r.id}`} className="btn btn-outline btn-small"><Icon name="clipboard-list" /> Ver detalle del trabajo</Link>
             </div>
           </article>
         )) : (

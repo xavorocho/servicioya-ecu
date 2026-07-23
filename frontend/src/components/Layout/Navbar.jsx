@@ -24,6 +24,7 @@ const roleLinks = {
   ],
   admin: [
     { label: "Dashboard", path: "/admin/inicio", icon: "chart-pie" },
+    { label: "Solicitudes", path: "/admin/solicitudes", icon: "clipboard-list" },
     { label: "Verificaciones", path: "/admin/verificaciones", icon: "user-check" },
     { label: "Usuarios", path: "/admin/usuarios", icon: "users" },
     { label: "Proveedores", path: "/admin/proveedores", icon: "toolbox" },

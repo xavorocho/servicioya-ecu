@@ -92,7 +92,8 @@ function getFileUrl(file) {
 router.put("/register", authenticate, authorize("proveedor"), uploadFields, async (req, res) => {
   try {
     const { category, sector, experience, price, description } = req.body;
-    const cat = getCategory(category);
+    const isCustom = category === "otra";
+    const cat = isCustom ? { id: "otra", name: req.body.customCategory || "Otra especialidad" } : getCategory(category);
     const files = req.files || {};
 
     const docData = {

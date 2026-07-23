@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { authenticate, authorize } from "../middleware/auth.js";
+import { upload } from "../middleware/upload.js";
 
 const router = Router();
+const requestImages = upload.array("images", 5);
 const prisma = new PrismaClient();
 
 router.get("/", authenticate, async (req, res) => {
@@ -23,7 +25,12 @@ router.get("/", authenticate, async (req, res) => {
     } else {
       requests = await prisma.request.findMany({ orderBy: { createdAt: "desc" } });
     }
-    res.json(requests);
+    res.json(
+      requests.map((r) => ({
+        ...r,
+        images: JSON.parse(r.images || "[]"),
+      }))
+    );
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -57,13 +64,15 @@ router.get("/stats", authenticate, async (req, res) => {
   }
 });
 
-router.post("/", authenticate, authorize("cliente"), async (req, res) => {
+router.post("/", authenticate, authorize("cliente"), requestImages, async (req, res) => {
   try {
     const { providerId, client, phone, city, address, description, preferredDate, preferredTimeRange } = req.body;
     if (!providerId || !description) return res.status(400).json({ error: "Proveedor y descripción requeridos" });
 
     const provider = await prisma.provider.findUnique({ where: { id: providerId } });
     if (!provider || provider.status !== "Aprobado") return res.status(400).json({ error: "Proveedor no disponible" });
+
+    const imageUrls = (req.files || []).map((f) => f.path || f.filename);
 
     const count = await prisma.request.count();
     const displayId = `SY-${String(count + 1001).slice(-6)}`;
@@ -84,6 +93,7 @@ router.post("/", authenticate, authorize("cliente"), async (req, res) => {
         preferredDate: preferredDate || "",
         preferredTimeRange: preferredTimeRange || "",
         status: "pendiente_cotizacion",
+        images: JSON.stringify(imageUrls),
       },
     });
     res.status(201).json(request);

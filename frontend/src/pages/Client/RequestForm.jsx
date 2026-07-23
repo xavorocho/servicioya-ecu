@@ -5,7 +5,12 @@ import { useToast } from "../../components/UI/Toast";
 import api from "../../api/client";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
 
-const CITIES = ["Quito", "Latacunga", "Ambato", "Pelileo", "Sangolquí", "Riobamba"];
+const CITIES = [
+  "Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo",
+  "Loja", "Ambato", "Riobamba", "Latacunga", "Ibarra", "Esmeraldas", "Tulcán",
+  "Puyo", "Tena", "Nueva Loja", "Babahoyo", "Quevedo", "Milagro", "Salinas",
+  "Santa Elena", "Sangolquí", "Pelileo", "Baños", "Otavalo",
+];
 
 export default function RequestForm() {
   const { id } = useParams();
@@ -14,6 +19,7 @@ export default function RequestForm() {
   const showToast = useToast();
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
   const [form, setForm] = useState({
     client: user?.name || "",
     phone: user?.phone || "",
@@ -32,11 +38,21 @@ export default function RequestForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/requests", { providerId: provider.id, ...form });
-      showToast("Solicitud enviada. El proveedor enviará una cotización.");
+      const fd = new FormData();
+      fd.append("providerId", id);
+      fd.append("client", user.name);
+      fd.append("phone", form.phone);
+      fd.append("city", form.city);
+      fd.append("address", form.address);
+      fd.append("description", form.description);
+      fd.append("preferredDate", form.preferredDate);
+      fd.append("preferredTimeRange", form.preferredTimeRange);
+      images.forEach((img) => fd.append("images", img));
+      await api.post("/requests", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      showToast("Solicitud enviada correctamente");
       navigate("/cliente/solicitudes");
     } catch (err) {
-      showToast(err.response?.data?.error || "Error al enviar la solicitud", "error");
+      showToast(err.response?.data?.error || "Error al enviar solicitud", "error");
     } finally {
       setLoading(false);
     }
@@ -76,6 +92,24 @@ export default function RequestForm() {
               <Icon name="circle-info" className="mt-0.5 flex-shrink-0" />
               <span>Después de enviar, el proveedor revisará tu solicitud y enviará una cotización con dos opciones de precio y una hora exacta. Tú podrás aceptar, proponer otra hora o rechazar.</span>
             </p>
+            <section className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="image" className="text-blue-600" /> Fotos del problema (opcional)</h3>
+              <p className="text-xs text-gray-500">Sube hasta 5 fotos para que el proveedor pueda entender mejor tu problema.</p>
+              <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={(e) => {
+                const newFiles = Array.from(e.target.files).slice(0, 5 - images.length);
+                setImages((prev) => [...prev, ...newFiles].slice(0, 5));
+              }} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all" />
+              {images.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {images.map((img, i) => (
+                    <div key={i} className="relative group">
+                      <img src={URL.createObjectURL(img)} alt="" className="w-16 h-16 rounded-lg object-cover border border-gray-200" />
+                      <button type="button" onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><Icon name="xmark" /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
             <button type="submit" disabled={loading} className="btn btn-primary btn-full">
               {loading ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <><Icon name="paper-plane" /> Enviar solicitud</>}
             </button>
@@ -90,7 +124,7 @@ export default function RequestForm() {
             <div className="flex justify-between pb-2 border-b border-gray-100"><dt className="text-gray-500 font-semibold">Calificación</dt><dd className="text-gray-900 font-bold">{provider.rating}/5</dd></div>
             <div className="flex justify-between"><dt className="text-gray-500 font-semibold">Disponibilidad</dt><dd className="text-gray-900 font-bold">{provider.available ? "Disponible" : "No disponible"}</dd></div>
           </dl>
-          <p className="text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-xl p-3 font-semibold">Flujo: Solicitar → Cotización → Aceptar/Hora → Pagar reserva → Trabajo → Calificar</p>
+
         </aside>
       </div>
     </div>
