@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../../api/client";
 import { useToast } from "../../components/UI/Toast";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
+import Chat from "../../components/UI/Chat";
 
 const STATUS_LABELS = {
   pendiente_cotizacion: "Pendiente de cotización",
@@ -401,6 +402,8 @@ export default function ClientRequestDetail() {
           </div>
         </div>
       </div>
+
+      <Chat requestId={request.id} />
     </div>
   );
 }

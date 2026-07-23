@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../../api/client";
 import { useToast } from "../../components/UI/Toast";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
+import Chat from "../../components/UI/Chat";
 
 function StatusBadge({ status }) {
   const map = {
@@ -541,6 +542,8 @@ export default function ProviderWorkDetail() {
           </button>
         </div>
       </div>
+
+      <Chat requestId={request._id || request.id} />
     </div>
   );
 }
