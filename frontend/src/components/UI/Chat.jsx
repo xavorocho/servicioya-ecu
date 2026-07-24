@@ -8,7 +8,7 @@ export default function Chat({ requestId }) {
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
   const [sending, setSending] = useState(false);
-  const bottomRef = useRef(null);
+  const messagesRef = useRef(null);
 
   const load = async () => {
     try {
@@ -22,7 +22,8 @@ export default function Chat({ requestId }) {
   useEffect(() => { load(); }, [requestId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesRef.current;
+    if (container) container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   // Poll for new messages every 5 seconds
@@ -53,7 +54,7 @@ export default function Chat({ requestId }) {
         <h3 className="font-bold text-gray-900 text-sm">Chat</h3>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={messagesRef} className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.length === 0 && (
           <p className="text-center text-gray-400 text-sm py-8">Inicia la conversación</p>
         )}
@@ -75,7 +76,6 @@ export default function Chat({ requestId }) {
             </div>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       <form onSubmit={send} className="p-3 border-t border-gray-100 flex gap-2">
