@@ -158,13 +158,21 @@ router.put("/:id/status", authenticate, async (req, res) => {
 
 router.put("/:id/start-work", authenticate, authorize("proveedor"), async (req, res) => {
   try {
-    const existing = await prisma.request.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.request.findUnique({ where: { id: req.params.id }, include: { quotes: { orderBy: { updatedAt: "desc" } }, payments: { orderBy: { createdAt: "desc" } } } });
     if (!existing) return res.status(404).json({ error: "Solicitud no encontrada" });
     const provider = await prisma.provider.findUnique({ where: { userEmail: req.user.email } });
     if (!provider || existing.providerId !== provider.id) return res.status(403).json({ error: "No autorizado" });
     if (existing.status !== "confirmada_pagada") return res.status(400).json({ error: "La reserva debe estar pagada antes de iniciar" });
-    if (!existing.acceptedPriceOption || !existing.agreedTime || !existing.address || !existing.workConditions) return res.status(400).json({ error: "Falta completar precio, horario, dirección o condiciones del trabajo" });
-    const request = await prisma.request.update({ where: { id: req.params.id }, data: { status: "en_proceso", startedAt: new Date(), statusHistory: addHistory(existing, "en_proceso", req.user.email, "Trabajo iniciado") } });
+    const completedPayment = existing.payments.find((payment) => payment.paymentStatus === "completado");
+    if (!completedPayment) return res.status(400).json({ error: "No existe un pago completado para esta reserva" });
+    const acceptedQuote = existing.quotes.find((quote) => quote.status === "aceptada") || existing.quotes[0];
+    if (!acceptedQuote) return res.status(400).json({ error: "No existe una cotización asociada" });
+    const inferredOption = Math.abs(completedPayment.amount - acceptedQuote.totalWithMaterials) < 0.01 ? "with_materials" : "without_materials";
+    const acceptedPriceOption = existing.acceptedPriceOption || acceptedQuote.acceptedOption || inferredOption;
+    const agreedTime = existing.agreedTime || acceptedQuote.providerExactTime;
+    const workConditions = existing.workConditions || acceptedQuote.providerNote || `Trabajo de ${existing.service}: ${existing.description}`;
+    if (!agreedTime || !existing.address) return res.status(400).json({ error: "Falta completar horario o dirección del trabajo" });
+    const request = await prisma.request.update({ where: { id: req.params.id }, data: { status: "en_proceso", acceptedPriceOption, agreedTime, workConditions, startedAt: new Date(), statusHistory: addHistory(existing, "en_proceso", req.user.email, "Trabajo iniciado") } });
     await prisma.notification.create({ data: { userEmail: existing.clientEmail, title: "Trabajo iniciado", message: `${provider.name} confirmó el inicio del trabajo.`, type: "work", link: `/cliente/solicitud/${existing.id}` } });
     res.json(request);
   } catch (err) {

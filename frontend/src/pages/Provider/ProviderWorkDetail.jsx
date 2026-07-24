@@ -284,7 +284,7 @@ export default function ProviderWorkDetail() {
               <Icon name="tag" className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wide">Servicio</p>
-                <p className="text-gray-900 font-medium">{request.serviceName || request.servicio || request.service?.name || "—"}</p>
+                <p className="text-gray-900 font-medium">{request.serviceName || request.servicio || (typeof request.service === "string" ? request.service : request.service?.name) || "—"}</p>
               </div>
             </div>
 
@@ -399,7 +399,7 @@ export default function ProviderWorkDetail() {
                   <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <p className="text-sm text-gray-500">Opción única</p>
                     <p className="text-xl font-bold text-gray-900">
-                      ${typeof quote.price === "number" ? quote.price.toFixed(2) : quote.price || "—"}
+                      ${typeof quote.price === "number" ? quote.price.toFixed(2) : quote.price || payment?.amount?.toFixed(2) || (quote.acceptedOption === "with_materials" ? quote.totalWithMaterials?.toFixed(2) : quote.totalWithoutMaterials?.toFixed(2)) || "—"}
                     </p>
                     {quote.description && (
                       <p className="text-sm text-gray-600 mt-1">{quote.description}</p>
@@ -529,7 +529,7 @@ export default function ProviderWorkDetail() {
             </Link>
           )}
 
-          {(request.status === "confirmada" || request.status === "confirmada_pagada" || request.estado === "confirmada" || request.estado === "confirmada_pagada") && (
+          {(request.status === "confirmada_pagada" || request.estado === "confirmada_pagada") && (
             <button
               onClick={() => setConfirmingStart(true)}
               disabled={completing}
