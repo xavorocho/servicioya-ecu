@@ -107,6 +107,12 @@ export default function QuoteView() {
   const handleProcessPayment = async () => {
     setPaymentProcessing(true);
     try {
+      if (!import.meta.env.VITE_PAYPHONE_TOKEN) {
+        const { data } = await api.post("/payments/simulate", { requestId });
+        showToast(data.message || "Pago simulado exitosamente");
+        setRequest({ ...request, status: "confirmada_pagada" });
+        return;
+      }
       let paymentId = quote.id;
       let payRes;
       try {
@@ -308,11 +314,11 @@ export default function QuoteView() {
           </h2>
           <p className="text-sm text-gray-600 mb-4">El precio y horario han sido acordados. Procede a pagar la reserva para confirmar el trabajo.</p>
           <button onClick={handleProcessPayment} disabled={paymentProcessing} className="btn btn-primary btn-full">
-            {paymentProcessing ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <><Icon name="dollar-sign" /> Pagar reserva (PayPhone)</>}
+            {paymentProcessing ? <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> : <><Icon name="dollar-sign" /> {import.meta.env.VITE_PAYPHONE_TOKEN ? "Pagar reserva (PayPhone)" : "Simular pago de reserva"}</>}
           </button>
           {!import.meta.env.VITE_PAYPHONE_TOKEN && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-3">
-              Modo simulación - En producción se redirige a PayPhone
+              Proyecto educativo: este botón confirmará un pago simulado y habilitará el inicio del trabajo.
             </div>
           )}
         </div>

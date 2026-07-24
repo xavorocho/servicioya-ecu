@@ -83,6 +83,40 @@ router.post("/webhook/payphone", async (req, res) => {
   }
 });
 
+router.post("/simulate", authenticate, authorize("cliente"), async (req, res) => {
+  try {
+    const { requestId } = req.body;
+    const request = await prisma.request.findUnique({ where: { id: requestId } });
+    if (!request) return res.status(404).json({ error: "Solicitud no encontrada" });
+    if (request.clientEmail !== req.user.email) return res.status(403).json({ error: "No autorizado" });
+    if (!["confirmada", "confirmada_pagada"].includes(request.status)) return res.status(400).json({ error: "La cotización debe estar confirmada antes de pagar" });
+
+    const quote = await prisma.quote.findFirst({ where: { requestId, status: "aceptada" }, orderBy: { updatedAt: "desc" } });
+    if (!quote) return res.status(404).json({ error: "Cotización aceptada no encontrada" });
+    const amount = quote.acceptedOption === "with_materials" ? quote.totalWithMaterials : quote.totalWithoutMaterials;
+    const platformFee = Math.round(amount * 0.05 * 100) / 100;
+    const existing = await prisma.payment.findFirst({ where: { requestId }, orderBy: { createdAt: "desc" } });
+    const transactionId = existing?.transactionId || `SIM-${Date.now()}`;
+
+    const payment = await prisma.$transaction(async (tx) => {
+      const completed = existing
+        ? await tx.payment.update({ where: { id: existing.id }, data: { quoteId: quote.id, amount, platformFee, paymentMethod: "simulacion", paymentStatus: "completado", transactionId } })
+        : await tx.payment.create({ data: { requestId, quoteId: quote.id, clientEmail: req.user.email, providerId: request.providerId, amount, platformFee, paymentMethod: "simulacion", paymentStatus: "completado", transactionId, description: "Reserva simulada para proyecto educativo" } });
+      if (request.status !== "confirmada_pagada") {
+        const history = JSON.parse(request.statusHistory || "[]");
+        await tx.request.update({ where: { id: requestId }, data: { status: "confirmada_pagada", statusHistory: JSON.stringify([...history, { status: "confirmada_pagada", by: req.user.email, note: "Pago simulado confirmado", at: new Date().toISOString() }]) } });
+        const provider = await tx.provider.findUnique({ where: { id: request.providerId }, select: { userEmail: true } });
+        if (provider) await tx.notification.create({ data: { userEmail: provider.userEmail, title: "Reserva pagada", message: `El pago simulado de la solicitud ${request.displayId} fue confirmado. Ya puedes iniciar el trabajo.`, type: "payment", link: `/proveedor/solicitud/${requestId}` } });
+      }
+      return completed;
+    });
+
+    res.json({ success: true, simulation: true, payment, transactionId, message: "Pago simulado correctamente. El proveedor ya puede iniciar el trabajo." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/:id/process", authenticate, async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({ where: { id: req.params.id } });
