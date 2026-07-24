@@ -33,6 +33,11 @@ export default function VerifyEmail() {
   const handleResend = async () => {
     try {
       const { data } = await api.post("/auth/resend-verification", { email });
+      if (data.pendingAdminVerification) {
+        setHint("");
+        setSuccess("El correo no está disponible. Solicita a un administrador que verifique tu cuenta desde el panel de Usuarios.");
+        return;
+      }
       setHint(data.hint || "");
       if (data.hint) localStorage.setItem("pendingVerificationHint", data.hint);
       setSuccess(data.deliveryMode === "development" ? "Código local generado" : "Código enviado a tu correo");

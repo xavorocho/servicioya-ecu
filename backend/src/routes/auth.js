@@ -70,10 +70,18 @@ router.post("/register", uploadFields, async (req, res) => {
       return created;
     });
     let emailResult;
-    try { emailResult = await sendVerification(user, code); } catch (emailError) {
-      if (role === "proveedor") await prisma.provider.deleteMany({ where: { userEmail: email } });
-      await prisma.user.delete({ where: { id: user.id } });
-      return res.status(503).json({ error: emailError.message });
+    try {
+      emailResult = await sendVerification(user, code);
+    } catch (emailError) {
+      console.warn(`[REGISTER EMAIL] ${emailError.message}. La cuenta queda pendiente de verificación administrativa.`);
+      return res.status(201).json({
+        requiresVerification: true,
+        pendingAdminVerification: true,
+        deliveryMode: "admin",
+        email: user.email,
+        role: user.role,
+        message: "Cuenta creada. Un administrador debe verificarla desde el panel de usuarios.",
+      });
     }
     const exposeLocalCode = process.env.NODE_ENV !== "production";
     res.status(201).json({
@@ -117,7 +125,16 @@ router.post("/resend-verification", async (req, res) => {
     if (user.emailVerified) return res.json({ message: "El correo ya está verificado" });
     const code = newCode();
     await prisma.user.update({ where: { id: user.id }, data: { verificationToken: hashToken(code), verificationExpiresAt: new Date(Date.now() + 15 * 60 * 1000) } });
-    const emailResult = await sendVerification(user, code);
+    let emailResult;
+    try {
+      emailResult = await sendVerification(user, code);
+    } catch (emailError) {
+      return res.status(202).json({
+        pendingAdminVerification: true,
+        deliveryMode: "admin",
+        message: "El correo no está disponible. Solicita a un administrador que verifique tu cuenta.",
+      });
+    }
     const exposeLocalCode = process.env.NODE_ENV !== "production";
     res.json({
       message: emailResult?.development ? "Código de desarrollo generado" : "Código reenviado. Revisa tu correo",

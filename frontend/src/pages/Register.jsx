@@ -67,6 +67,11 @@ export default function Register() {
       const data = await register(fd);
       localStorage.setItem("pendingVerificationEmail", form.email);
       if (data.hint) localStorage.setItem("pendingVerificationHint", data.hint);
+      if (data.pendingAdminVerification) {
+        showToast("Cuenta creada. Un administrador debe verificarla desde Usuarios.");
+        navigate("/login");
+        return;
+      }
       showToast(data.deliveryMode === "development" ? "Cuenta creada. Usa el código mostrado en pantalla." : "Cuenta creada. Verifica tu correo electrónico.");
       navigate("/verificar-email?email=" + encodeURIComponent(form.email));
     } catch (err) {
