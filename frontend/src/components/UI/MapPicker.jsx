@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icon } from "./helpers";
 
@@ -9,7 +10,13 @@ function LocationMarker({ position, onSelect }) {
       onSelect({ lat: e.latlng.lat, lng: e.latlng.lng });
     },
   });
-  return position ? <Marker position={[position.lat, position.lng]} /> : null;
+  const markerIcon = L.divIcon({
+    className: "servicioya-map-marker",
+    html: '<div class="marker-pin"><span></span></div>',
+    iconSize: [42, 52],
+    iconAnchor: [21, 48],
+  });
+  return position ? <Marker position={[position.lat, position.lng]} icon={markerIcon} /> : null;
 }
 
 export default function MapPicker({ onSelect, initialPosition }) {
@@ -48,13 +55,13 @@ export default function MapPicker({ onSelect, initialPosition }) {
   };
 
   return (
-    <div className="rounded-xl overflow-hidden border border-gray-200">
-      <div className="bg-blue-50 px-4 py-2 flex items-center gap-2">
-        <Icon name="map-pin" className="text-blue-600" />
-        <span className="text-sm font-semibold text-blue-800">
+    <div className="map-picker-shell">
+      <div className="bg-teal-50 px-4 py-3 flex items-center gap-2 border-b border-teal-100">
+        <Icon name="location-dot" className="text-teal-700" />
+        <span className="text-sm font-semibold text-teal-950">
           {loading ? "Obteniendo dirección..." : "Haz clic en el mapa para seleccionar ubicación"}
         </span>
-        <button type="button" onClick={useCurrentLocation} className="ml-auto text-xs font-bold text-blue-700 hover:underline">Usar mi ubicación</button>
+        <button type="button" onClick={useCurrentLocation} className="ml-auto rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-800 shadow-sm hover:bg-teal-100">Usar mi ubicación</button>
       </div>
       <MapContainer
         center={[position.lat, position.lng]}

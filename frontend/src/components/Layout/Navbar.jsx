@@ -54,11 +54,11 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-violet-950/95 border-b border-white/10 backdrop-blur-xl shadow-xl shadow-violet-950/10">
+    <header className="sticky top-0 z-50 bg-[#123b3f]/95 border-b border-white/10 backdrop-blur-xl shadow-xl shadow-teal-950/10">
       <nav className={`${user?.role === "admin" ? "max-w-[1920px] px-3" : "max-w-7xl px-4 sm:px-6 lg:px-8"} mx-auto`} aria-label="Navegación principal">
         <div className="flex items-center justify-between h-16">
           <Link to={user ? `/${user.role}/inicio` : "/"} className="flex items-center gap-3 hover:opacity-85 transition-opacity flex-shrink-0" aria-label="Ir a ServicioYa ECU">
-            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-rose-400 flex items-center justify-center text-violet-950 shadow-md shadow-rose-500/20">
+            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center text-teal-950 shadow-md shadow-orange-500/20">
               <Icon name="house-chimney-user" />
             </span>
             <div className="leading-tight">
@@ -84,7 +84,7 @@ export default function Navbar() {
                   to={link.path}
                   onClick={() => setMenuOpen(false)}
                   className={`flex items-center gap-2 ${user?.role === "admin" ? "lg:px-2 lg:text-xs" : "px-3 text-sm"} px-3 py-2 rounded-full font-semibold transition-colors ${
-                    isActive(link.path) ? "bg-amber-300 text-violet-950" : "text-violet-100 hover:bg-white/10 hover:text-white"
+                    isActive(link.path) ? "bg-amber-300 text-teal-950" : "text-teal-50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <Icon name={link.icon} className="text-xs opacity-75" />

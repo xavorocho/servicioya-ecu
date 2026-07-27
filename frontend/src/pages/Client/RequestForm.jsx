@@ -76,16 +76,17 @@ export default function RequestForm() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
       <Breadcrumb items={[{ label: "Inicio", href: "/cliente/inicio" }, { label: "Catálogo", href: "/cliente/catalogo" }, { label: "Solicitar servicio" }]} />
+      <div className="request-heading"><div><span className="eyebrow !text-orange-600">Estás a un paso</span><h1>Cuéntanos qué necesitas</h1><p>Completa los detalles para recibir una cotización clara del profesional.</p></div><span className="request-heading-icon"><Icon name="clipboard-check" /></span></div>
       <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-        <section className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm">
+        <section className="request-form-card">
           <div className="flex items-center gap-2 mb-5 text-xs font-bold">
-            <span className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-800">1. Proveedor</span>
-            <span className="px-3 py-1.5 rounded-full bg-blue-100 text-blue-800">2. Detalles</span>
+            <span className="px-3 py-1.5 rounded-full bg-teal-100 text-teal-900">✓ Proveedor</span>
+            <span className="px-3 py-1.5 rounded-full bg-amber-300 text-teal-950">2. Detalles</span>
             <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-400">3. Cotización</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-center gap-3 mb-5">
-            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-lg shadow-blue-500/20">
+          <div className="p-4 rounded-2xl bg-teal-50 border border-teal-100 flex items-center gap-3 mb-5">
+            <span className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-700 to-teal-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-lg shadow-teal-500/20">
               {provider.name?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()}
             </span>
             <div><strong className="block text-sm text-gray-900">{provider.name}</strong><p className="text-xs text-gray-500">{provider.categoryName} · {provider.city} · ${provider.price}/hora</p></div>
@@ -103,8 +104,8 @@ export default function RequestForm() {
               <div className="sm:col-span-2"><label className="text-xs font-semibold text-gray-700 mb-1 block">Descripción del trabajo *</label><textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} placeholder="Describe claramente qué necesitas. Ej: Fuga en lavamanos del baño principal, gotea constantemente." required className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white resize-y" /></div>
             </div>
             <div><label className="text-xs font-semibold text-gray-700 mb-2 block">Ubicación exacta *</label><MapPicker onSelect={({ lat, lng, address }) => setForm((current) => ({ ...current, latitude: String(lat), longitude: String(lng), address: address || current.address }))} /></div>
-            <section className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="image" className="text-blue-600" /> Fotos del problema *</h3>
+            <section className="photo-dropzone space-y-4">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="camera" className="text-orange-600" /> Fotos del problema *</h3>
               <p className="text-xs text-gray-500">Adjunta entre 1 y 5 imágenes JPG, PNG o WEBP. Máximo 5 MB por archivo.</p>
               <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={(e) => {
                 const selected = Array.from(e.target.files);
@@ -129,15 +130,15 @@ export default function RequestForm() {
           </form>
         </section>
 
-        <aside className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm lg:sticky lg:top-24 space-y-4">
-          <h2 className="font-bold text-gray-900">Resumen</h2>
+        <aside className="request-summary lg:sticky lg:top-24 space-y-4">
+          <span className="request-summary-icon"><Icon name="receipt" /></span><h2 className="font-extrabold text-teal-950 text-xl">Tu solicitud</h2>
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between pb-2 border-b border-gray-100"><dt className="text-gray-500 font-semibold">Proveedor</dt><dd className="text-gray-900 font-bold">{provider.name}</dd></div>
             <div className="flex justify-between pb-2 border-b border-gray-100"><dt className="text-gray-500 font-semibold">Servicio</dt><dd className="text-gray-900 font-bold">{provider.categoryName}</dd></div>
             <div className="flex justify-between pb-2 border-b border-gray-100"><dt className="text-gray-500 font-semibold">Calificación</dt><dd className="text-gray-900 font-bold">{provider.rating}/5</dd></div>
             <div className="flex justify-between"><dt className="text-gray-500 font-semibold">Disponibilidad</dt><dd className="text-gray-900 font-bold">{provider.available ? "Disponible" : "No disponible"}</dd></div>
           </dl>
-
+          <div className="rounded-xl bg-teal-50 p-3 text-xs text-teal-900 font-semibold flex gap-2"><Icon name="shield-halved" className="mt-0.5"/><span>Tus datos de contacto solo se comparten para gestionar este servicio.</span></div>
         </aside>
       </div>
     </div>
