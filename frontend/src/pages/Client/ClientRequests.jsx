@@ -47,6 +47,18 @@ export default function ClientRequests() {
     }
   };
 
+  const deleteRequest = async (id) => {
+    if (!confirm("Â¿Eliminar esta solicitud de tu lista? Esta acciÃ³n no se puede deshacer.")) return;
+    try {
+      await api.delete(`/requests/${id}`);
+      setRequests((current) => current.filter((request) => request.id !== id));
+      showToast("Solicitud eliminada de tu lista.");
+      api.get("/requests/stats").then(({ data }) => setStats(data)).catch(() => {});
+    } catch (err) {
+      showToast(err.response?.data?.error || "No se pudo eliminar la solicitud", "error");
+    }
+  };
+
   const getActions = (r) => {
     switch (r.status) {
       case "cotizacion_enviada":
@@ -106,6 +118,9 @@ export default function ClientRequests() {
               <Link to={`/perfil/${r.providerId}`} className="btn btn-outline btn-small"><Icon name="user" /> Ver proveedor</Link>
               {["pendiente_cotizacion", "cotizacion_enviada", "confirmada"].includes(r.status) && (
                 <button onClick={() => cancelRequest(r.id)} className="btn btn-danger btn-small ml-auto"><Icon name="ban" /> Cancelar</button>
+              )}
+              {["cancelada", "rechazada"].includes(r.status) && (
+                <button onClick={() => deleteRequest(r.id)} className="btn btn-danger btn-small ml-auto"><Icon name="trash" /> Eliminar</button>
               )}
             </div>
           </article>

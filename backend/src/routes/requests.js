@@ -16,14 +16,14 @@ router.get("/", authenticate, async (req, res) => {
     let requests;
     if (req.user.role === "cliente") {
       requests = await prisma.request.findMany({
-        where: { clientEmail: req.user.email },
+        where: { clientEmail: req.user.email, hiddenByClient: false },
         orderBy: { createdAt: "desc" },
       });
     } else if (req.user.role === "proveedor") {
       const provider = await prisma.provider.findUnique({ where: { userEmail: req.user.email } });
       if (!provider) return res.json([]);
       requests = await prisma.request.findMany({
-        where: { providerId: provider.id },
+        where: { providerId: provider.id, hiddenByProvider: false },
         orderBy: { createdAt: "desc" },
       });
     } else {
@@ -45,11 +45,11 @@ router.get("/", authenticate, async (req, res) => {
 router.get("/stats", authenticate, async (req, res) => {
   try {
     let where = {};
-    if (req.user.role === "cliente") where = { clientEmail: req.user.email };
+    if (req.user.role === "cliente") where = { clientEmail: req.user.email, hiddenByClient: false };
     else if (req.user.role === "proveedor") {
       const provider = await prisma.provider.findUnique({ where: { userEmail: req.user.email } });
       if (!provider) return res.json({ total: 0, pending: 0, confirmed: 0, inProgress: 0, completed: 0, rated: 0 });
-      where = { providerId: provider.id };
+      where = { providerId: provider.id, hiddenByProvider: false };
     }
     const all = await prisma.request.findMany({ where });
     res.json({
@@ -151,6 +151,27 @@ router.put("/:id/status", authenticate, async (req, res) => {
       data: { status, statusHistory: addHistory(existing, status, req.user.email) },
     });
     res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/:id", authenticate, async (req, res) => {
+  try {
+    if (!["cliente", "proveedor"].includes(req.user.role)) return res.status(403).json({ error: "No autorizado" });
+    const existing = await prisma.request.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: "Solicitud no encontrada" });
+    if (!["cancelada", "rechazada"].includes(existing.status)) return res.status(400).json({ error: "Solo puedes eliminar solicitudes canceladas o rechazadas" });
+
+    if (req.user.role === "cliente") {
+      if (existing.clientEmail !== req.user.email) return res.status(403).json({ error: "No puedes eliminar esta solicitud" });
+      await prisma.request.update({ where: { id: existing.id }, data: { hiddenByClient: true } });
+    } else {
+      const provider = await prisma.provider.findUnique({ where: { userEmail: req.user.email } });
+      if (!provider || existing.providerId !== provider.id) return res.status(403).json({ error: "No puedes eliminar esta solicitud" });
+      await prisma.request.update({ where: { id: existing.id }, data: { hiddenByProvider: true } });
+    }
+    res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

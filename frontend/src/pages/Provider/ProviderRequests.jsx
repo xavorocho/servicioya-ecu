@@ -52,6 +52,17 @@ export default function ProviderRequests() {
     }
   };
 
+  const deleteRequest = async (id) => {
+    if (!confirm("Â¿Eliminar esta solicitud de tu lista? Esta acciÃ³n no se puede deshacer.")) return;
+    try {
+      await api.delete(`/requests/${id}`);
+      setRequests((current) => current.filter((request) => request.id !== id));
+      showToast("Solicitud eliminada de tu lista.");
+    } catch (err) {
+      showToast(err.response?.data?.error || "No se pudo eliminar la solicitud", "error");
+    }
+  };
+
   const pending = requests.filter((r) => r.status === "pendiente_cotizacion").length;
   const quoted = requests.filter((r) => ["cotizacion_enviada", "hora_propuesta_cliente"].includes(r.status)).length;
   const active = requests.filter((r) => ["confirmada", "confirmada_pagada", "en_proceso"].includes(r.status)).length;
@@ -122,6 +133,9 @@ export default function ProviderRequests() {
               )}
               {r.status === "calificada" && (
                 <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200"><Icon name="award" /> Finalizado</span>
+              )}
+              {["cancelada", "rechazada"].includes(r.status) && (
+                <button onClick={() => deleteRequest(r.id)} className="btn btn-danger btn-small ml-auto"><Icon name="trash" /> Eliminar</button>
               )}
               <Link to={`/proveedor/solicitud/${r.id}`} className="btn btn-outline btn-small"><Icon name="clipboard-list" /> Ver detalle del trabajo</Link>
             </div>

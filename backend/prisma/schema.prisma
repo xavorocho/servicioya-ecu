@@ -130,6 +130,8 @@ model Request {
   statusHistory       String    @default("[]")
   startedAt           DateTime?
   completedAt         DateTime?
+  hiddenByClient      Boolean   @default(false)
+  hiddenByProvider    Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
