@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
 import { GoogleLogin } from "@react-oauth/google";
+import { cleanText, firstError, validators } from "../utils/validation";
 
 export default function Login() {
   const { login, googleLogin } = useAuth();
@@ -17,9 +18,11 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationError = firstError([[form.email, validators.email]]);
+    if (validationError) return showToast(validationError, "error");
     setLoading(true);
     try {
-      const user = await login(form.email, form.password);
+      const user = await login(cleanText(form.email, 120).toLowerCase(), form.password);
       showToast(`Bienvenido, ${user.name}.`);
       navigate(`/${user.role}/inicio`);
     } catch (err) {

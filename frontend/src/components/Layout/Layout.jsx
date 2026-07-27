@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Toast from "../UI/Toast";
 import HelpButton from "../UI/HelpButton";
+import ExperiencePulse from "../UI/ExperiencePulse";
 
 export default function Layout({ children }) {
   const { pathname } = useLocation();
@@ -22,6 +23,7 @@ export default function Layout({ children }) {
       <Footer />
       <Toast />
       <HelpButton />
+      <ExperiencePulse />
     </div>
   );
 }

@@ -96,25 +96,23 @@ export default function Home() {
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="grid lg:grid-cols-[1.5fr_0.85fr] gap-6 items-stretch">
-          <div className="relative overflow-hidden rounded-3xl border border-gray-100 p-6 sm:p-10 bg-white shadow-xl shadow-blue-500/5">
+          <div className="hero-photo relative overflow-hidden rounded-3xl border border-violet-200 p-6 sm:p-10 shadow-2xl min-h-[480px] flex items-center">
             {/* Decorative gradient blobs */}
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-br from-cyan-400/15 to-blue-400/15 rounded-full blur-3xl" />
 
             <div className="relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 text-[0.65rem] font-bold uppercase tracking-wide mb-4 border border-blue-100 animate-fade-in-left">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300 text-violet-950 text-[0.65rem] font-bold uppercase tracking-wide mb-4 border border-amber-200 animate-fade-in-left">
                 <Icon name="map-location-dot" /> Plataforma ecuatoriana
               </span>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight max-w-2xl animate-fade-in-up">
-                Encuentra servicios
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"> confiables </span>
-                para tu hogar
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight max-w-2xl animate-fade-in-up">
+                Tu hogar pide ayuda.<br/><span className="text-amber-300">Nosotros la encontramos.</span>
               </h1>
-              <p className="text-gray-500 mt-3 max-w-lg text-sm sm:text-base leading-relaxed animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "forwards", opacity: 0 }}>
+              <p className="text-violet-100 mt-4 max-w-lg text-sm sm:text-base leading-relaxed animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "forwards", opacity: 0 }}>
                 Conectamos clientes con proveedores verificados para trabajos de plomería, electricidad, limpieza, pintura y más.
               </p>
 
-              <div className="flex flex-wrap gap-5 mt-5 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "forwards", opacity: 0 }}>
+              <div className="hidden flex-wrap gap-5 mt-5 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "forwards", opacity: 0 }}>
                 {[
                   { v: `${featured.length}+`, l: "Proveedores verificados", i: "users", c: "text-blue-600 bg-blue-50" },
                   { v: CATEGORIES.length, l: "Categorías de servicio", i: "layer-group", c: "text-indigo-600 bg-indigo-50" },
@@ -132,7 +130,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div className="mt-6 p-4 bg-gray-50 rounded-2xl border border-gray-100 grid sm:grid-cols-[1fr_180px_auto] gap-3 items-end animate-fade-in-up" style={{ animationDelay: "300ms", animationFillMode: "forwards", opacity: 0 }}>
+              <div className="mt-7 p-4 bg-white/95 backdrop-blur rounded-2xl border border-white grid sm:grid-cols-[1fr_180px_auto] gap-3 items-end animate-fade-in-up" style={{ animationDelay: "300ms", animationFillMode: "forwards", opacity: 0 }}>
                 <div>
                   <label className="text-xs font-bold text-gray-700 mb-1 block">Servicio que necesitas</label>
                   <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Ej: plomero, limpieza, electricista..." className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" />

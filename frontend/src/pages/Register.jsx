@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../components/UI/Toast";
 import { Icon } from "../components/UI/helpers";
 import { GoogleLogin } from "@react-oauth/google";
+import { cleanText, firstError, validators } from "../utils/validation";
 
 const CATEGORIES = [
   { id: "plomeria", name: "Plomería" }, { id: "electricidad", name: "Electricidad" },
@@ -49,6 +50,8 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationError = firstError([[form.name, validators.name], [form.email, validators.email], [form.phone, validators.phone], [form.password, validators.password]]);
+    if (validationError) return showToast(validationError, "error");
     if (form.password !== form.confirm) return showToast("Las contraseñas no coinciden.", "error");
     if (role === "proveedor") {
       const requiredFiles = ["docCedula", "docAntecedentes", "docOficio", "profileImage", "verificationFrontImage", "verificationSideImage"];
@@ -58,7 +61,7 @@ export default function Register() {
     setLoading(true);
     try {
       const fd = new FormData();
-      Object.entries({ name: form.name, email: form.email, password: form.password, role, phone: form.phone, city: form.city, termsAccepted: true }).forEach(([key, value]) => fd.append(key, value));
+      Object.entries({ name: cleanText(form.name, 80), email: cleanText(form.email, 120).toLowerCase(), password: form.password, role, phone: form.phone.replace(/\D/g, ""), city: form.city, termsAccepted: true }).forEach(([key, value]) => fd.append(key, value));
       if (role === "proveedor") {
         Object.entries(provider).forEach(([key, value]) => fd.append(key, value));
         fd.append("categoryName", CATEGORIES.find((item) => item.id === provider.category)?.name || provider.customCategory);

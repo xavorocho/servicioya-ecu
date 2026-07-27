@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../components/UI/Toast";
+import { cleanText, firstError, validators } from "../../utils/validation";
 import api from "../../api/client";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
 import MapPicker from "../../components/UI/MapPicker";
@@ -40,6 +41,8 @@ export default function RequestForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationError = firstError([[form.phone, validators.phone], [form.description, validators.description]]);
+    if (validationError) return showToast(validationError, "error");
     if (!form.latitude || !form.longitude) return showToast("Selecciona la ubicación exacta en el mapa", "error");
     if (images.length < 1 || images.length > 5) return showToast("Adjunta entre 1 y 5 imágenes", "error");
     if (images.some((image) => image.size > 5 * 1024 * 1024)) return showToast("Cada imagen debe pesar máximo 5 MB", "error");
@@ -48,13 +51,13 @@ export default function RequestForm() {
       const fd = new FormData();
       fd.append("providerId", id);
       fd.append("client", user.name);
-      fd.append("phone", form.phone);
+      fd.append("phone", form.phone.replace(/\D/g, ""));
       fd.append("city", form.city);
       fd.append("address", form.address);
       fd.append("addressReference", form.addressReference);
       fd.append("latitude", form.latitude);
       fd.append("longitude", form.longitude);
-      fd.append("description", form.description);
+      fd.append("description", cleanText(form.description, 1000));
       fd.append("preferredDate", form.preferredDate);
       fd.append("preferredTimeRange", form.preferredTimeRange);
       images.forEach((img) => fd.append("images", img));
