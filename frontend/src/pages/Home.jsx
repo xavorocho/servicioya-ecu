@@ -11,6 +11,7 @@ const CATEGORIES = [
   ["pintura", "Pintura", "paint-roller", "Interiores y exteriores"],
   ["carpinteria", "Carpintería", "hammer", "Muebles y reparaciones"],
   ["jardineria", "Jardinería", "seedling", "Poda y mantenimiento"],
+  ["electrodomesticos", "Electrodomésticos", "plug", "Diagnóstico y reparación"],
 ];
 const CITIES = ["Quito", "Latacunga", "Ambato", "Pelileo", "Sangolquí", "Riobamba"];
 
