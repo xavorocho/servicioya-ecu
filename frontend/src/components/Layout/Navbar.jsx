@@ -1,45 +1,16 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Icon } from "../UI/helpers";
 import NotificationBell from "../UI/NotificationBell";
 import { getFileUrl } from "../../utils/files";
 
-const publicLinks = [
-  { label: "Inicio", path: "/", icon: "house" },
-  { label: "Catálogo", path: "/catalogo", icon: "magnifying-glass" },
-  { label: "Ayuda", path: "/ayuda", icon: "circle-question" },
-];
-const quickServices = [
-  ["wrench", "Plomería", "plomeria"], ["bolt", "Electricidad", "electricidad"],
-  ["broom", "Limpieza", "limpieza"], ["paint-roller", "Pintura", "pintura"],
-  ["hammer", "Carpintería", "carpinteria"], ["seedling", "Jardinería", "jardineria"],
-];
-
+const publicLinks = [{ label: "Inicio", path: "/" }, { label: "Explorar", path: "/catalogo" }, { label: "Cómo funciona", path: "/ayuda" }];
+const quickServices = [["wrench", "Plomería", "plomeria"], ["bolt", "Electricidad", "electricidad"], ["broom", "Limpieza", "limpieza"], ["paint-roller", "Pintura", "pintura"], ["hammer", "Carpintería", "carpinteria"], ["seedling", "Jardinería", "jardineria"]];
 const roleLinks = {
-  cliente: [
-    { label: "Inicio", path: "/cliente/inicio", icon: "house" },
-    { label: "Buscar servicios", path: "/cliente/catalogo", icon: "magnifying-glass" },
-    { label: "Mis solicitudes", path: "/cliente/solicitudes", icon: "clipboard-list" },
-    { label: "Mi perfil", path: "/cliente/perfil", icon: "user" },
-  ],
-  proveedor: [
-    { label: "Panel", path: "/proveedor/inicio", icon: "gauge-high" },
-    { label: "Solicitudes", path: "/proveedor/solicitudes", icon: "inbox" },
-    { label: "Mi perfil", path: "/proveedor/perfil", icon: "id-card" },
-    { label: "Verificación", path: "/proveedor/documentos", icon: "file-shield" },
-  ],
-  admin: [
-    { label: "Dashboard", path: "/admin/inicio", icon: "chart-pie" },
-    { label: "Solicitudes", path: "/admin/solicitudes", icon: "clipboard-list" },
-    { label: "Verificaciones", path: "/admin/verificaciones", icon: "user-check" },
-    { label: "Usuarios", path: "/admin/usuarios", icon: "users" },
-    { label: "Proveedores", path: "/admin/proveedores", icon: "toolbox" },
-    { label: "Categorías", path: "/admin/categorias", icon: "tags" },
-    { label: "Especialidades", path: "/admin/especialidades", icon: "star" },
-    { label: "Reportes", path: "/admin/reportes", icon: "chart-column" },
-    { label: "Soporte", path: "/admin/soporte", icon: "headset" },
-  ],
+  cliente: [{ label: "Inicio", path: "/cliente/inicio" }, { label: "Buscar servicios", path: "/cliente/catalogo" }, { label: "Mis solicitudes", path: "/cliente/solicitudes" }, { label: "Mi perfil", path: "/cliente/perfil" }],
+  proveedor: [{ label: "Panel", path: "/proveedor/inicio" }, { label: "Solicitudes", path: "/proveedor/solicitudes" }, { label: "Mi perfil", path: "/proveedor/perfil" }, { label: "Verificación", path: "/proveedor/documentos" }],
+  admin: [{ label: "Dashboard", path: "/admin/inicio" }, { label: "Solicitudes", path: "/admin/solicitudes" }, { label: "Verificaciones", path: "/admin/verificaciones" }, { label: "Usuarios", path: "/admin/usuarios" }, { label: "Proveedores", path: "/admin/proveedores" }, { label: "Categorías", path: "/admin/categorias" }, { label: "Reportes", path: "/admin/reportes" }],
 };
 
 export default function Navbar() {
@@ -48,100 +19,32 @@ export default function Navbar() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
-
   const links = user ? roleLinks[user.role] || [] : publicLinks;
-  const initials = (name) => String(name || "SY").split(" ").filter(Boolean).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+  const catalogPath = user?.role === "cliente" ? "/cliente/catalogo" : "/catalogo";
+  const initials = String(user?.name || "SY").split(" ").filter(Boolean).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 
-  const isActive = (path) => location.pathname === path;
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+  useEffect(() => { setMenuOpen(false); setServicesOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    const close = (event) => { if (!event.target.closest("[data-services-menu]")) setServicesOpen(false); };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#123b3f]/95 border-b border-white/10 backdrop-blur-xl shadow-xl shadow-teal-950/10">
-      <nav className={`${user?.role === "admin" ? "max-w-[1920px] px-3" : "max-w-7xl px-4 sm:px-6 lg:px-8"} mx-auto`} aria-label="Navegación principal">
-        <div className="flex items-center justify-between h-16">
-          <Link to={user ? `/${user.role}/inicio` : "/"} className="flex items-center gap-3 hover:opacity-85 transition-opacity flex-shrink-0" aria-label="Ir a ServicioYa ECU">
-            <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-orange-400 flex items-center justify-center text-teal-950 shadow-md shadow-orange-500/20">
-              <Icon name="house-chimney-user" />
-            </span>
-            <div className="leading-tight">
-              <strong className="block text-sm font-extrabold text-white">ServicioYa ECU</strong>
-              <small className="block text-xs text-violet-200 font-medium">Tu hogar, en buenas manos</small>
-            </div>
-          </Link>
+    <header className="sy-nav">
+      <nav aria-label="Navegación principal">
+        <Link to={user ? `/${user.role}/inicio` : "/"} className="sy-brand" aria-label="ServicioYa ECU, ir al inicio"><span><Icon name="house-chimney-user" /></span><div><strong>ServicioYa</strong><small>ECU</small></div></Link>
 
-          <button
-            className="lg:hidden p-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-colors"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={menuOpen}
-          >
-            <Icon name={menuOpen ? "xmark" : "bars"} />
-          </button>
+        <button className="sy-menu-toggle" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={menuOpen}><Icon name={menuOpen ? "xmark" : "bars"} /><span>Menú</span></button>
 
-          <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row lg:items-center gap-1 lg:gap-0 absolute lg:static top-16 left-0 right-0 bg-violet-950 lg:bg-transparent border-b lg:border-0 border-white/10 lg:border-none p-4 lg:p-0 shadow-lg lg:shadow-none z-50`}>
-            <div className={`flex flex-col lg:flex-row lg:items-center gap-1 ${user?.role === "admin" ? "lg:mr-2" : "lg:mr-4"}`}>
-              {(!user || user.role === "cliente") && <div className="relative">
-                <button type="button" onClick={() => setServicesOpen(!servicesOpen)} className="nav-services-button" aria-expanded={servicesOpen}><Icon name="bars" /> Servicios</button>
-                {servicesOpen && <div className="services-menu"><div className="services-menu-head"><span>Explora por categoría</span><Link to={user ? "/cliente/catalogo" : "/catalogo"} onClick={() => {setServicesOpen(false);setMenuOpen(false)}}>Ver todas →</Link></div><div className="grid grid-cols-2 gap-2">{quickServices.map(([icon,label,id])=><Link key={id} to={`${user ? "/cliente/catalogo" : "/catalogo"}?category=${id}`} onClick={() => {setServicesOpen(false);setMenuOpen(false)}}><span><Icon name={icon}/></span>{label}</Link>)}</div></div>}
-              </div>}
-              {links.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-2 ${user?.role === "admin" ? "lg:px-2 lg:text-xs" : "px-3 text-sm"} px-3 py-2 rounded-full font-semibold transition-colors ${
-                    isActive(link.path) ? "bg-amber-300 text-teal-950" : "text-teal-50 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  <Icon name={link.icon} className="text-xs opacity-75" />
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+        <div className={`sy-nav__panel ${menuOpen ? "is-open" : ""}`}>
+          <div className="sy-nav__links">
+            {(!user || user.role === "cliente") && <div className="sy-services-menu" data-services-menu><button type="button" onClick={() => setServicesOpen((open) => !open)} aria-expanded={servicesOpen}><Icon name="bars" /> Servicios <Icon name="chevron-right" /></button>{servicesOpen && <div className="sy-services-popover"><header><div><strong>Encuentra ayuda rápido</strong><small>Explora por tipo de trabajo</small></div><Link to={catalogPath}>Ver todo</Link></header><div>{quickServices.map(([icon, label, id]) => <Link key={id} to={`${catalogPath}?category=${id}`}><span><Icon name={icon} /></span>{label}<Icon name="chevron-right" /></Link>)}</div></div>}</div>}
+            {links.map((link) => <Link key={link.path} to={link.path} className={location.pathname === link.path ? "is-active" : ""}>{link.label}</Link>)}
+          </div>
 
-            <div className="lg:ml-auto flex flex-col lg:flex-row items-stretch lg:items-center gap-2 pt-3 lg:pt-0 border-t lg:border-0 border-gray-100 lg:border-none mt-3 lg:mt-0">
-              {!user ? (
-                <>
-                  <Link to="/login" className="btn btn-secondary text-center" onClick={() => setMenuOpen(false)}>
-                    <Icon name="right-to-bracket" /> Iniciar sesión
-                  </Link>
-                  <Link to="/registro" className="btn btn-primary text-center" onClick={() => setMenuOpen(false)}>
-                    <Icon name="user-plus" /> Registrarme
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <NotificationBell />
-                  <Link
-                    to={`/${user.role}/perfil`}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white shadow-sm hover:border-blue-200 transition-colors"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
-                      {user.profileImage ? (
-                        <img src={getFileUrl(user.profileImage)} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        initials(user.name)
-                      )}
-                    </span>
-                    <div className={`leading-tight ${user.role === "admin" ? "hidden 2xl:block" : ""}`}>
-                      <strong className="block text-sm text-gray-900">{user.name}</strong>
-                      <small className="block text-xs text-gray-500 font-medium capitalize">{user.role}</small>
-                    </div>
-                  </Link>
-                  <button
-                    className="btn btn-outline btn-small"
-                    onClick={() => { handleLogout(); setMenuOpen(false); }}
-                  >
-                    <Icon name="right-from-bracket" /> Salir
-                  </button>
-                </>
-              )}
-            </div>
+          <div className="sy-nav__actions">
+            {!user ? <><Link to="/login" className="sy-login">Ingresar</Link><Link to="/registro" className="sy-signup">Crear cuenta <Icon name="chevron-right" /></Link></> : <><NotificationBell /><Link to={`/${user.role}/perfil`} className="sy-user"><span>{user.profileImage ? <img src={getFileUrl(user.profileImage)} alt="" /> : initials}</span><div><strong>{user.name}</strong><small>{user.role}</small></div></Link><button className="sy-logout" onClick={() => { logout(); navigate("/"); }} aria-label="Cerrar sesión"><Icon name="right-from-bracket" /></button></>}
           </div>
         </div>
       </nav>

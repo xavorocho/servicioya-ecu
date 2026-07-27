@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-26T22:36:16.6618522-05:00",
+  "title": "Design System: ServicioYa ECU",
+  "extensions": {
+    "colorMeta": {
+      "petrol-ink": { "role": "primary", "displayName": "Tinta petróleo", "canonical": "#082f32", "tonalRamp": ["oklch(15% 0.035 192)", "oklch(25% 0.035 192)", "oklch(35% 0.035 192)", "oklch(47% 0.035 192)", "oklch(59% 0.035 192)", "oklch(71% 0.035 192)", "oklch(83% 0.035 192)", "oklch(95% 0.035 192)"] },
+      "petrol-raised": { "role": "primary", "displayName": "Petróleo elevado", "canonical": "#12484a", "tonalRamp": ["oklch(15% 0.035 192)", "oklch(25% 0.035 192)", "oklch(35% 0.035 192)", "oklch(47% 0.035 192)", "oklch(59% 0.035 192)", "oklch(71% 0.035 192)", "oklch(83% 0.035 192)", "oklch(95% 0.035 192)"] },
+      "neighborhood-orange": { "role": "secondary", "displayName": "Naranja de barrio", "canonical": "#ff5a1f", "tonalRamp": ["oklch(15% 0.16 42)", "oklch(25% 0.16 42)", "oklch(35% 0.16 42)", "oklch(47% 0.16 42)", "oklch(59% 0.16 42)", "oklch(71% 0.16 42)", "oklch(83% 0.16 42)", "oklch(95% 0.16 42)"] },
+      "neighborhood-orange-deep": { "role": "secondary", "displayName": "Naranja de barrio profundo", "canonical": "#d94311", "tonalRamp": ["oklch(15% 0.15 42)", "oklch(25% 0.15 42)", "oklch(35% 0.15 42)", "oklch(47% 0.15 42)", "oklch(59% 0.15 42)", "oklch(71% 0.15 42)", "oklch(83% 0.15 42)", "oklch(95% 0.15 42)"] },
+      "warm-paper": { "role": "neutral", "displayName": "Papel cálido", "canonical": "#f3f1eb", "tonalRamp": ["oklch(15% 0.012 85)", "oklch(25% 0.012 85)", "oklch(35% 0.012 85)", "oklch(47% 0.012 85)", "oklch(59% 0.012 85)", "oklch(71% 0.012 85)", "oklch(83% 0.012 85)", "oklch(95% 0.012 85)"] },
+      "warm-white": { "role": "neutral", "displayName": "Blanco cálido", "canonical": "#fffefa", "tonalRamp": ["oklch(15% 0.008 85)", "oklch(25% 0.008 85)", "oklch(35% 0.008 85)", "oklch(47% 0.008 85)", "oklch(59% 0.008 85)", "oklch(71% 0.008 85)", "oklch(83% 0.008 85)", "oklch(95% 0.008 85)"] },
+      "quiet-line": { "role": "neutral", "displayName": "Línea tranquila", "canonical": "#d8ddd8", "tonalRamp": ["oklch(15% 0.008 160)", "oklch(25% 0.008 160)", "oklch(35% 0.008 160)", "oklch(47% 0.008 160)", "oklch(59% 0.008 160)", "oklch(71% 0.008 160)", "oklch(83% 0.008 160)", "oklch(95% 0.008 160)"] },
+      "secondary-text": { "role": "neutral", "displayName": "Texto secundario", "canonical": "#66716f", "tonalRamp": ["oklch(15% 0.012 180)", "oklch(25% 0.012 180)", "oklch(35% 0.012 180)", "oklch(47% 0.012 180)", "oklch(59% 0.012 180)", "oklch(71% 0.012 180)", "oklch(83% 0.012 180)", "oklch(95% 0.012 180)"] },
+      "verified-teal": { "role": "tertiary", "displayName": "Verde verificado", "canonical": "#087567", "tonalRamp": ["oklch(15% 0.075 174)", "oklch(25% 0.075 174)", "oklch(35% 0.075 174)", "oklch(47% 0.075 174)", "oklch(59% 0.075 174)", "oklch(71% 0.075 174)", "oklch(83% 0.075 174)", "oklch(95% 0.075 174)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Promesa", "purpose": "Titular principal del hero." },
+      "headline": { "displayName": "Sección", "purpose": "Titulares de recorridos y estados." },
+      "title": { "displayName": "Resultado", "purpose": "Categorías, profesionales y bloques." },
+      "body": { "displayName": "Orientación", "purpose": "Explicaciones y contexto funcional." },
+      "label": { "displayName": "Índice", "purpose": "Rótulos editoriales y metadatos breves." }
+    },
+    "shadows": [
+      { "name": "command-ambient", "value": "0 24px 70px rgba(8, 47, 50, .13)", "purpose": "Comandos superpuestos y menús flotantes." },
+      { "name": "provider-rest", "value": "0 12px 30px rgba(8, 47, 50, .06)", "purpose": "Tarjetas de proveedor en reposo." }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "160ms ease", "purpose": "Color y desplazamiento breve en controles." },
+      { "name": "menu-enter", "value": "180ms cubic-bezier(.2,.8,.2,1)", "purpose": "Apertura de menú desde su disparador." },
+      { "name": "content-rise", "value": "420ms cubic-bezier(.2,.8,.2,1)", "purpose": "Entrada única de contenido principal." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "700px" },
+      { "name": "navigation", "value": "1050px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal de búsqueda o solicitud.",
+      "html": "<button class=\"ds-btn-primary\">BUSCAR AHORA →</button>",
+      "css": ".ds-btn-primary{background:var(--sy-accent,#ff5a1f);color:#fff;padding:14px 18px;border:0;border-radius:0;font:900 12px Aptos,Segoe UI,sans-serif;letter-spacing:.04em;transition:background-color 160ms ease,transform 160ms ease}.ds-btn-primary:hover{background:var(--sy-accent-dark,#d94311);transform:translateY(-2px)}.ds-btn-primary:focus-visible{outline:3px solid #082f32;outline-offset:3px}.ds-btn-primary:active{transform:translateY(0)}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Acción secundaria que no compite con el flujo principal.",
+      "html": "<button class=\"ds-btn-quiet\">VER PERFIL</button>",
+      "css": ".ds-btn-quiet{background:#fffefa;color:#082f32;padding:10px 13px;border:1px solid #d8ddd8;border-radius:0;font:900 11px Aptos,Segoe UI,sans-serif;transition:background-color 160ms ease}.ds-btn-quiet:hover{background:#e6ebe7}.ds-btn-quiet:focus-visible{outline:3px solid #ff5a1f;outline-offset:2px}.ds-btn-quiet:active{background:#d8ddd8}"
+    },
+    {
+      "name": "Search Command",
+      "kind": "input",
+      "refersTo": "input-command",
+      "description": "Entrada de servicio integrada en el panel de despacho.",
+      "html": "<label class=\"ds-command\"><span>SERVICIO</span><input placeholder=\"Plomero, limpieza, electricista...\"></label>",
+      "css": ".ds-command{display:block;background:#082f32;color:#9db0ad;padding:15px 20px;border-right:1px solid rgba(255,255,255,.13);font-family:Aptos,Segoe UI,sans-serif}.ds-command span{display:block;margin-bottom:7px;font-size:10px;font-weight:850;letter-spacing:.1em}.ds-command input{width:100%;background:transparent;color:#fff;border:0;border-radius:0;outline:0;font-size:13px}.ds-command input::placeholder{color:#cfdbd8}.ds-command:focus-within{box-shadow:inset 0 -3px #ff5a1f}"
+    },
+    {
+      "name": "Service Navigation",
+      "kind": "nav",
+      "description": "Acceso de navegación oscuro a las categorías de servicio.",
+      "html": "<button class=\"ds-service-nav\">☰ SERVICIOS <span>›</span></button>",
+      "css": ".ds-service-nav{display:flex;align-items:center;gap:8px;background:#082f32;color:#fff;padding:10px 13px;border:0;border-radius:0;font:750 13px Aptos,Segoe UI,sans-serif;transition:background-color 160ms ease}.ds-service-nav span{margin-left:auto}.ds-service-nav:hover{background:#12484a}.ds-service-nav:focus-visible{outline:3px solid #ff5a1f;outline-offset:2px}.ds-service-nav:active{background:#061f21}"
+    },
+    {
+      "name": "Service Destination",
+      "kind": "card",
+      "description": "Categoría editorial que transforma una necesidad en destino.",
+      "html": "<a class=\"ds-service-card\" href=\"#\"><small>01</small><span>🔧</span><strong>Plomería</strong><em>Fugas y tuberías</em><b>›</b></a>",
+      "css": ".ds-service-card{position:relative;min-height:160px;padding:24px;display:flex;flex-direction:column;justify-content:flex-end;background:#f3f1eb;color:#082f32;border:1px solid #d8ddd8;text-decoration:none;font-family:Aptos,Segoe UI,sans-serif;transition:background-color 180ms ease,color 180ms ease}.ds-service-card small{position:absolute;top:22px;left:24px;color:#8a9694;font-size:10px;font-weight:900}.ds-service-card span{position:absolute;right:24px;top:20px}.ds-service-card strong{font-size:24px}.ds-service-card em{margin-top:5px;color:#66716f;font-size:12px;font-style:normal}.ds-service-card b{position:absolute;right:24px;bottom:26px}.ds-service-card:hover{background:#082f32;color:#fff}.ds-service-card:hover em{color:#aabdb9}.ds-service-card:focus-visible{outline:3px solid #ff5a1f;outline-offset:2px}"
+    },
+    {
+      "name": "Provider Result",
+      "kind": "card",
+      "refersTo": "card-provider",
+      "description": "Resultado comparable con identidad, evidencia y acción.",
+      "html": "<article class=\"ds-provider\"><div class=\"ds-avatar\">LV</div><div><strong>Lucía Vega</strong><p>Electricidad · Quito</p><small>✓ VERIFICADA</small></div><button>SOLICITAR</button></article>",
+      "css": ".ds-provider{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:13px;padding:25px;background:#fffefa;color:#082f32;border:1px solid #d8ddd8;box-shadow:0 12px 30px rgba(8,47,50,.06);font-family:Aptos,Segoe UI,sans-serif;transition:transform 180ms ease,box-shadow 180ms ease}.ds-provider:hover{transform:translateY(-5px);box-shadow:0 24px 70px rgba(8,47,50,.13)}.ds-avatar{width:48px;height:48px;display:grid;place-items:center;background:#082f32;color:#fff;font-size:12px;font-weight:900}.ds-provider strong{font-size:15px}.ds-provider p{margin:4px 0;color:#66716f;font-size:11px}.ds-provider small{color:#087567;font-size:9px;font-weight:850}.ds-provider button{padding:9px 14px;background:#ff5a1f;color:#fff;border:0;border-radius:0;font-weight:900}.ds-provider button:hover{background:#d94311}.ds-provider button:focus-visible{outline:3px solid #082f32;outline-offset:2px}"
+    },
+    {
+      "name": "Activity Metric",
+      "kind": "custom",
+      "description": "Estado operativo del cliente dentro de una retícula comparable.",
+      "html": "<article class=\"ds-metric\"><span>02</span><strong>3</strong><p>Esperando respuesta</p></article>",
+      "css": ".ds-metric{position:relative;padding:25px;background:#fffefa;color:#082f32;border:1px solid #d8ddd8;font-family:Aptos,Segoe UI,sans-serif}.ds-metric span{position:absolute;right:18px;top:16px;color:#a2aca9;font-size:9px;font-weight:900}.ds-metric strong{display:block;font-size:38px;line-height:1;font-weight:900}.ds-metric p{margin:8px 0 0;color:#66716f;font-size:11px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Red de barrio en movimiento",
+    "overview": "ServicioYa se comporta como una interfaz de despacho confiable para hogares ecuatorianos: clara como una herramienta moderna, cercana como una recomendación del barrio y suficientemente enérgica para convertir una necesidad en acción. La composición combina un panel de comando oscuro superpuesto con recorridos editoriales abiertos, haciendo visible la secuencia necesidad, búsqueda, comparación y solicitud.\n\nLa expresión visual prioriza al cliente sin rebajar al proveedor. Las necesidades ocupan el primer plano; los profesionales aparecen como resultados verificables, con oficio, ciudad, experiencia, disponibilidad y acción. La energía proviene del contraste, el ritmo tipográfico y un único naranja eléctrico, no de adornos ni afirmaciones sin evidencia.",
+    "keyCharacteristics": ["Fondo papel cálido y superficies claras que evitan la frialdad clínica.", "Tinta petróleo para estructura, confianza y paneles de comando.", "Un solo acento naranja para acciones y señales de avance.", "Retícula editorial asimétrica, divisores visibles y esquinas mayormente rectas.", "Fotografía humana y auténtica como contexto, nunca como decoración genérica."],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "El naranja es la única voz de acción; no compite con púrpuras, azules o degradados promocionales.", "section": "colors" },
+      { "name": "The Evidence Color Rule", "body": "El verde aparece únicamente cuando comunica un estado real de verificación o éxito.", "section": "colors" },
+      { "name": "The Compact Promise Rule", "body": "Los titulares grandes usan interlínea cerrada y ancho controlado; nunca se estiran como una franja horizontal.", "section": "typography" },
+      { "name": "The Label Is Navigation Rule", "body": "Las mayúsculas espaciadas identifican recorridos y secciones, no párrafos ni mensajes de error.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "Una superficie en reposo se separa primero por tono o línea; la sombra aparece cuando flota o responde.", "section": "elevation" }
+    ],
+    "dos": ["Do ubicar la búsqueda o la siguiente acción del cliente antes de contenido explicativo largo.", "Do usar tinta petróleo, papel cálido y divisores para construir jerarquía antes de añadir sombra.", "Do reservar naranja para acciones, progreso e iconos clave.", "Do mostrar información comprobable del proveedor cerca de cada decisión.", "Do respetar prefers-reduced-motion y conservar foco visible, contraste y etiquetas explícitas."],
+    "donts": ["Don't introducir púrpura, azul promocional, degradados de marca o múltiples acentos.", "Don't redondear cada tarjeta, botón y contenedor hasta convertirlos en cápsulas.", "Don't inventar testimonios, métricas, garantías o disponibilidad que el producto no pueda demostrar.", "Don't esconder el camino de proveedores aunque el cliente conserve la prioridad.", "Don't usar animaciones continuas o movimiento decorativo en formularios y validaciones."]
+  }
+}
