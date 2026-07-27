@@ -17,9 +17,9 @@ const CITIES = ["Quito", "Guayaquil", "Cuenca", "Santo Domingo", "Machala", "Man
 function ProviderCard({ provider, role }) {
   const canRequest = role === "cliente" && provider.available;
   return (
-    <article className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col gap-3">
+    <article className="provider-market-card flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden">
+        <span className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden shadow-lg shadow-violet-200">
           {provider.profileImage ? <img src={getFileUrl(provider.profileImage)} alt={`Foto de ${provider.name}`} className="w-full h-full object-cover" /> : provider.name?.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase()}
         </span>
         <div className="min-w-0">
@@ -85,8 +85,12 @@ export default function Catalog() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
+      <section className="catalog-banner mb-7">
+        <div className="relative z-10 max-w-2xl"><span className="eyebrow !text-amber-300">Talento local verificado</span><h1 className="text-3xl sm:text-5xl font-black text-white leading-tight mt-2">Encuentra a la persona indicada para hacerlo bien.</h1><p className="text-violet-100 mt-3">Compara experiencia, precio y opiniones. Elige con confianza y mantén todo el proceso en un solo lugar.</p></div>
+        <div className="relative z-10 hidden md:flex gap-3">{[["shield-halved","Perfiles revisados"],["star","Opiniones reales"],["comments","Contacto directo"]].map(([i,t])=><span key={t} className="catalog-proof"><Icon name={i}/>{t}</span>)}</div>
+      </section>
       <div className="grid lg:grid-cols-[280px_1fr] gap-6 items-start">
-        <aside className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm space-y-4 lg:sticky lg:top-24">
+        <aside className="filter-panel space-y-4 lg:sticky lg:top-24">
           <h2 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="sliders" /> Filtros</h2>
           <div>
             <label className="text-xs font-semibold text-gray-700 mb-1 block"><Icon name="magnifying-glass" className="mr-1" /> Buscar</label>

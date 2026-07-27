@@ -177,13 +177,20 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7">
+        <div className="home-trust-strip">
+          {[{i:"shield-halved",t:"Perfiles revisados",d:"Más seguridad al elegir"},{i:"tags",t:"Precios visibles",d:"Compara antes de contratar"},{i:"comments",t:"Comunicación directa",d:"Todo claro desde el inicio"},{i:"star",t:"Experiencias reales",d:"Decide con opiniones"}].map((item)=><div key={item.t} className="flex items-center gap-3"><span><Icon name={item.i}/></span><div><strong>{item.t}</strong><small>{item.d}</small></div></div>)}
+        </div>
+      </section>
+
       {/* Categorías */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="text-center mb-8">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-800 text-[0.65rem] font-bold uppercase tracking-wide mb-3 border border-blue-100">
             <Icon name="tags" /> Categorías
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">Servicios disponibles</h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-violet-950">¿Qué quieres resolver hoy?</h2>
+          <p className="text-gray-500 mt-2">Explora soluciones cercanas para cada rincón de tu hogar.</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 stagger-children">
           {CATEGORIES.map((cat) => (

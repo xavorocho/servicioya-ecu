@@ -3,25 +3,25 @@ import { Icon } from "../UI/helpers";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-950 text-white mt-16">
+    <footer className="relative overflow-hidden bg-violet-950 text-white mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <section>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-300 to-rose-400 flex items-center justify-center text-violet-950 shadow-lg shadow-rose-500/20">
                 <Icon name="house-chimney-user" />
               </span>
               <strong className="text-lg font-extrabold">ServicioYa ECU</strong>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-violet-200 text-sm leading-relaxed">
               Plataforma ecuatoriana para contratar servicios técnicos y asistencia del hogar con proveedores verificados.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-xs font-semibold">
-                <Icon name="shield-halved" className="text-blue-400" /> Proveedores verificados
+                <Icon name="shield-halved" className="text-emerald-300" /> Proveedores verificados
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 text-gray-300 text-xs font-semibold">
-                <Icon name="location-dot" className="text-blue-400" /> Ecuador
+                <Icon name="location-dot" className="text-amber-300" /> Hecho para Ecuador
               </span>
             </div>
           </section>
