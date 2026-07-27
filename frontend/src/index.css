@@ -426,3 +426,10 @@ textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+.register-shell { display:grid; grid-template-columns:minmax(0,.82fr) minmax(34rem,1fr); overflow:hidden; border:1px solid #ede9fe; border-radius:2rem; background:white; box-shadow:0 30px 80px rgba(59,7,100,.14); }
+.register-story { position:relative; display:flex; min-height:46rem; flex-direction:column; justify-content:space-between; overflow:hidden; padding:3.5rem; color:white; background-image:linear-gradient(180deg,rgba(59,7,100,.6),rgba(59,7,100,.96)),url('/images/servicioya-hero.png'); background-size:cover; background-position:63% center; }
+.register-story::after { content:""; position:absolute; width:22rem; height:22rem; right:-10rem; bottom:-10rem; border-radius:50%; background:rgba(244,63,94,.38); filter:blur(4px); }
+.register-benefit { display:flex; flex-direction:column; align-items:center; gap:.5rem; padding:1rem .5rem; border:1px solid rgba(255,255,255,.2); border-radius:1rem; background:rgba(255,255,255,.12); backdrop-filter:blur(10px); font-size:.75rem; }
+.register-benefit svg { color:#fde047; }
+@media(max-width:900px) { .register-shell{grid-template-columns:1fr}.register-story{min-height:24rem;padding:2rem}.register-story h2{font-size:2.4rem} }

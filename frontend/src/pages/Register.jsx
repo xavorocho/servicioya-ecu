@@ -33,6 +33,19 @@ export default function Register() {
   const [files, setFiles] = useState({ docCedula: null, docAntecedentes: null, docOficio: null, docRuc: null, profileImage: null, verificationFrontImage: null, verificationSideImage: null });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  const updateAccessField = (field, rawValue) => {
+    let value = rawValue;
+    if (field === "name") value = rawValue.replace(/[^A-Za-zÀ-ÖØ-öø-ÿÑñ' -]/g, "").replace(/\s{2,}/g, " ").slice(0, 80);
+    if (field === "phone") value = rawValue.replace(/\D/g, "").slice(0, 10);
+    setForm((current) => ({ ...current, [field]: value }));
+    const validator = validators[field];
+    if (validator && value) {
+      const result = validator(value);
+      setFieldErrors((current) => ({ ...current, [field]: result === true ? "" : result }));
+    } else setFieldErrors((current) => ({ ...current, [field]: "" }));
+  };
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
@@ -85,11 +98,22 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-in">
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12 animate-fade-in">
+      <div className="register-shell">
+        <aside className="register-story">
+          <div className="relative z-10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber-300 text-violet-950 px-3 py-1.5 text-xs font-extrabold"><Icon name="star" /> Tu solución empieza aquí</span>
+            <h2 className="text-4xl lg:text-5xl font-black leading-tight mt-5">Más tiempo para ti.<br/><span className="text-amber-300">Menos pendientes.</span></h2>
+            <p className="text-violet-100 mt-4 max-w-md">Únete a una comunidad que conecta hogares con talento local verificado en todo Ecuador.</p>
+          </div>
+          <div className="relative z-10 grid grid-cols-3 gap-3 mt-10">
+            {[["shield-halved","Seguro"],["bolt","Rápido"],["heart","Humano"]].map(([icon,label]) => <div key={label} className="register-benefit"><Icon name={icon}/><strong>{label}</strong></div>)}
+          </div>
+        </aside>
+        <div className="bg-white p-6 sm:p-8 lg:p-10">
         <div className="text-center mb-6">
-          <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white text-xl mx-auto mb-4"><Icon name="user-plus" /></span>
-          <h1 className="text-xl font-extrabold text-gray-900">ServicioYa ECU</h1>
+          <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-violet-600 flex items-center justify-center text-white text-xl mx-auto mb-4 shadow-lg shadow-violet-200"><Icon name="user-plus" /></span>
+          <h1 className="text-2xl font-black text-gray-900">Crea tu cuenta</h1>
           <p className="text-sm text-gray-500 mt-1">Selecciona el tipo de cuenta que deseas crear.</p>
         </div>
 
@@ -112,8 +136,8 @@ export default function Register() {
         <div className="grid grid-cols-2 gap-3 mb-6">
           {[{ r: "cliente", i: "user", t: "Soy cliente", d: "Necesito contratar servicios" }, { r: "proveedor", i: "toolbox", t: "Soy proveedor", d: "Quiero ofrecer mis servicios" }].map((opt) => (
             <button key={opt.r} type="button" onClick={() => setRole(opt.r)}
-              className={`p-4 rounded-xl border-2 text-center transition-all ${role === opt.r ? "border-blue-500 bg-blue-50" : "border-gray-200 bg-white hover:border-gray-300"}`}>
-              <Icon name={opt.i} className={`text-2xl mb-2 ${role === opt.r ? "text-blue-600" : "text-gray-400"}`} />
+              className={`p-4 rounded-2xl border-2 text-center transition-all ${role === opt.r ? "border-violet-500 bg-violet-50 shadow-md shadow-violet-100" : "border-gray-200 bg-white hover:border-rose-300"}`}>
+              <Icon name={opt.i} className={`text-2xl mb-2 ${role === opt.r ? "text-violet-600" : "text-gray-400"}`} />
               <strong className="block text-sm text-gray-900">{opt.t}</strong>
               <span className="text-xs text-gray-500">{opt.d}</span>
             </button>
@@ -121,20 +145,22 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <section className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 space-y-4">
-            <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="id-card" className="text-blue-600" /> Datos de acceso</h3>
+          <section className="p-5 rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50/60 to-rose-50/40 space-y-4">
+            <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900"><Icon name="id-card" className="text-violet-600" /> Datos de acceso</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               {[{ n: "name", l: "Nombre completo", t: "text", p: "Ej: Justin Medina" }, { n: "email", l: "Correo electrónico", t: "email", p: "correo@ejemplo.com" }, { n: "phone", l: "Teléfono", t: "tel", p: "09XXXXXXXX" }, { n: "city", l: "Ciudad", t: "select", opts: CITIES }, { n: "password", l: "Contraseña", t: "password", p: "Mínimo 6 caracteres" }, { n: "confirm", l: "Confirmar contraseña", t: "password", p: "Repite la contraseña" }].map((f) => (
                 <div key={f.n}>
                   <label className="block text-xs font-semibold text-gray-700 mb-1">{f.l}</label>
                   {f.t === "select" ? (
-                    <select value={form[f.n]} onChange={(e) => setForm({ ...form, [f.n]: e.target.value })} required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all">
+                    <select name={f.n} autoComplete="address-level2" value={form[f.n]} onChange={(e) => updateAccessField(f.n, e.target.value)} required className="w-full h-12 px-3.5 rounded-xl border border-violet-100 bg-white text-sm focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none transition-all">
                       <option value="">Selecciona</option>
                       {f.opts.map((o) => <option key={o} value={o}>{o}</option>)}
                     </select>
                   ) : (
-                    <input type={f.t} value={form[f.n]} onChange={(e) => setForm({ ...form, [f.n]: e.target.value })} placeholder={f.p} minLength={f.n === "password" || f.n === "confirm" ? 6 : undefined} required className="w-full h-11 px-3.5 rounded-lg border border-gray-200 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all" />
+                    <input type={f.t} name={f.n === "confirm" ? "password-confirmation" : f.n} autoComplete={{name:"name",email:"email",phone:"tel",password:"new-password",confirm:"new-password"}[f.n]} inputMode={f.n === "phone" ? "numeric" : undefined} pattern={f.n === "name" ? "[A-Za-zÀ-ÖØ-öø-ÿÑñ' -]{3,80}" : f.n === "phone" ? "09[0-9]{8}" : undefined} value={form[f.n]} onChange={(e) => updateAccessField(f.n, e.target.value)} onBlur={() => { const validator=validators[f.n]; if(validator){const result=validator(form[f.n]);setFieldErrors(current=>({...current,[f.n]:result===true?"":result}))}}} placeholder={f.p} minLength={f.n === "password" || f.n === "confirm" ? 8 : undefined} required className={`w-full h-12 px-3.5 rounded-xl border bg-white text-sm outline-none transition-all ${fieldErrors[f.n] ? "border-red-400 ring-2 ring-red-100" : "border-violet-100 focus:border-violet-500 focus:ring-2 focus:ring-violet-200"}`} aria-invalid={Boolean(fieldErrors[f.n])} />
                   )}
+                  {fieldErrors[f.n] && <p className="mt-1.5 text-xs font-semibold text-red-600 flex items-center gap-1"><Icon name="circle-exclamation" />{fieldErrors[f.n]}</p>}
+                  {f.n === "name" && !fieldErrors.name && <p className="mt-1.5 text-[.68rem] text-gray-500">Solo letras, espacios, guiones y apóstrofes.</p>}
                 </div>
               ))}
             </div>
@@ -207,6 +233,7 @@ export default function Register() {
         <p className="text-center text-sm text-gray-500 mt-5">
           ¿Ya tienes cuenta? <Link to="/login" className="text-blue-600 font-bold hover:underline">Inicia sesión</Link>
         </p>
+        </div>
       </div>
       {showTerms && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
