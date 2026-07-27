@@ -407,6 +407,12 @@ const icons = {
       <line x1="4" x2="20" y1="18" y2="18" />
     </svg>
   ),
+  bell: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em]">
+      <path d="M10.27 21a2 2 0 0 0 3.46 0" />
+      <path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.86 18 12.28 18 8A6 6 0 0 0 6 8c0 4.28-1.41 5.86-2.74 7.33" />
+    </svg>
+  ),
   headset: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[1em] h-[1em]">
       <path d="M3 18v-6a9 9 0 0 1 18 0v6" />

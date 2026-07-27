@@ -10,6 +10,11 @@ const publicLinks = [
   { label: "Catálogo", path: "/catalogo", icon: "magnifying-glass" },
   { label: "Ayuda", path: "/ayuda", icon: "circle-question" },
 ];
+const quickServices = [
+  ["wrench", "Plomería", "plomeria"], ["bolt", "Electricidad", "electricidad"],
+  ["broom", "Limpieza", "limpieza"], ["paint-roller", "Pintura", "pintura"],
+  ["hammer", "Carpintería", "carpinteria"], ["seedling", "Jardinería", "jardineria"],
+];
 
 const roleLinks = {
   cliente: [
@@ -42,6 +47,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   const links = user ? roleLinks[user.role] || [] : publicLinks;
   const initials = (name) => String(name || "SY").split(" ").filter(Boolean).map((p) => p[0]).join("").slice(0, 2).toUpperCase();
@@ -78,6 +84,10 @@ export default function Navbar() {
 
           <div className={`${menuOpen ? "flex" : "hidden"} lg:flex flex-col lg:flex-row lg:items-center gap-1 lg:gap-0 absolute lg:static top-16 left-0 right-0 bg-violet-950 lg:bg-transparent border-b lg:border-0 border-white/10 lg:border-none p-4 lg:p-0 shadow-lg lg:shadow-none z-50`}>
             <div className={`flex flex-col lg:flex-row lg:items-center gap-1 ${user?.role === "admin" ? "lg:mr-2" : "lg:mr-4"}`}>
+              {(!user || user.role === "cliente") && <div className="relative">
+                <button type="button" onClick={() => setServicesOpen(!servicesOpen)} className="nav-services-button" aria-expanded={servicesOpen}><Icon name="bars" /> Servicios</button>
+                {servicesOpen && <div className="services-menu"><div className="services-menu-head"><span>Explora por categoría</span><Link to={user ? "/cliente/catalogo" : "/catalogo"} onClick={() => {setServicesOpen(false);setMenuOpen(false)}}>Ver todas →</Link></div><div className="grid grid-cols-2 gap-2">{quickServices.map(([icon,label,id])=><Link key={id} to={`${user ? "/cliente/catalogo" : "/catalogo"}?category=${id}`} onClick={() => {setServicesOpen(false);setMenuOpen(false)}}><span><Icon name={icon}/></span>{label}</Link>)}</div></div>}
+              </div>}
               {links.map((link) => (
                 <Link
                   key={link.path}

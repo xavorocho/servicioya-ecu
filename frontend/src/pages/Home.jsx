@@ -96,20 +96,20 @@ export default function Home() {
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6">
         <div className="grid lg:grid-cols-[1.5fr_0.85fr] gap-6 items-stretch">
-          <div className="hero-photo relative overflow-hidden rounded-3xl border border-violet-200 p-6 sm:p-10 shadow-2xl min-h-[480px] flex items-center">
+          <div className="hero-photo relative overflow-hidden rounded-[2rem] border border-teal-100 p-6 sm:p-10 shadow-2xl min-h-[540px] flex items-center">
             {/* Decorative gradient blobs */}
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-gradient-to-br from-cyan-400/15 to-blue-400/15 rounded-full blur-3xl" />
 
             <div className="relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300 text-violet-950 text-[0.65rem] font-bold uppercase tracking-wide mb-4 border border-amber-200 animate-fade-in-left">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300 text-teal-950 text-[0.65rem] font-bold uppercase tracking-wide mb-4 border border-amber-200 animate-fade-in-left">
                 <Icon name="map-location-dot" /> Plataforma ecuatoriana
               </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.05] tracking-tight max-w-2xl animate-fade-in-up">
-                Tu hogar pide ayuda.<br/><span className="text-amber-300">Nosotros la encontramos.</span>
+                Tu casa lista.<br/><span className="text-amber-300">Tu tiempo libre.</span>
               </h1>
               <p className="text-violet-100 mt-4 max-w-lg text-sm sm:text-base leading-relaxed animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "forwards", opacity: 0 }}>
-                Conectamos clientes con proveedores verificados para trabajos de plomería, electricidad, limpieza, pintura y más.
+                Encuentra profesionales verificados cerca de ti y resuelve hoy eso que llevas semanas posponiendo.
               </p>
 
               <div className="hidden flex-wrap gap-5 mt-5 animate-fade-in-up" style={{ animationDelay: "200ms", animationFillMode: "forwards", opacity: 0 }}>

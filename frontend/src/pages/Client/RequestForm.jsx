@@ -22,6 +22,7 @@ export default function RequestForm() {
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
+  const [phoneError, setPhoneError] = useState("");
   const [form, setForm] = useState({
     client: user?.name || "",
     phone: user?.phone || "",
@@ -38,6 +39,15 @@ export default function RequestForm() {
   useEffect(() => {
     api.get(`/providers/${id}`).then(({ data }) => { setProvider(data); setForm((f) => ({ ...f, city: data.city })); }).catch(() => navigate("/cliente/catalogo"));
   }, [id, navigate]);
+
+  const updatePhone = (rawValue) => {
+    const phone = rawValue.replace(/\D/g, "").slice(0, 10);
+    setForm((current) => ({ ...current, phone }));
+    if (!phone) setPhoneError("El teléfono es obligatorio.");
+    else if (!phone.startsWith("09")) setPhoneError("El celular debe comenzar con 09.");
+    else if (phone.length < 10) setPhoneError(`Faltan ${10 - phone.length} dígitos.`);
+    else setPhoneError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,7 +105,7 @@ export default function RequestForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Nombre del cliente</label><input type="text" value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
-              <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Teléfono</label><input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="09XXXXXXXX" required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
+              <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Teléfono <span className="float-right text-[.65rem] text-gray-400">{form.phone.length}/10</span></label><input type="tel" name="phone" autoComplete="tel" inputMode="numeric" pattern="09[0-9]{8}" maxLength="10" value={form.phone} onChange={(e) => updatePhone(e.target.value)} onBlur={(e) => updatePhone(e.target.value)} placeholder="09XXXXXXXX" required aria-invalid={Boolean(phoneError)} className={`w-full h-11 px-4 rounded-xl border text-sm bg-gray-50 focus:bg-white ${phoneError ? "border-red-400 ring-2 ring-red-100" : "border-gray-200"}`} />{phoneError && <p className="text-xs text-red-600 font-semibold mt-1 flex items-center gap-1"><Icon name="circle-exclamation" />{phoneError}</p>}</div>
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Ciudad</label><select value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white">{CITIES.map((c) => <option key={c} value={c}>{c}</option>)}</select></div>
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Fecha preferida</label><input type="date" value={form.preferredDate} onChange={(e) => setForm({ ...form, preferredDate: e.target.value })} min={new Date().toISOString().slice(0, 10)} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white" /></div>
               <div><label className="text-xs font-semibold text-gray-700 mb-1 block">Rango de horario</label><select value={form.preferredTimeRange} onChange={(e) => setForm({ ...form, preferredTimeRange: e.target.value })} required className="w-full h-11 px-4 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:bg-white"><option value="">Selecciona</option><option>Mañana (8:00 - 12:00)</option><option>Tarde (12:00 - 18:00)</option><option>Noche (18:00 - 21:00)</option></select></div>
