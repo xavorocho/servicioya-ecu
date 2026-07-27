@@ -4,6 +4,7 @@ import api from "../../api/client";
 import { useToast } from "../../components/UI/Toast";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
 import Chat from "../../components/UI/Chat";
+import ExpandableImage from "../../components/UI/ExpandableImage";
 
 const STATUS_LABELS = {
   pendiente_cotizacion: "Pendiente de cotización",
@@ -292,9 +293,7 @@ export default function ClientRequestDetail() {
               </h2>
               <div className="flex flex-wrap gap-3">
                 {images.map((img, i) => (
-                  <div key={i} className="w-20 h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <img src={img.startsWith("http") ? img : `/api/uploads/${img}`} alt={`Adjunto ${i + 1}`} className="w-full h-full object-cover" />
-                  </div>
+                  <ExpandableImage key={i} src={img} alt={`Imagen adjunta ${i + 1}`} className="w-20 h-20 rounded-xl border border-gray-200 bg-gray-50" />
                 ))}
               </div>
             </div>
@@ -345,7 +344,7 @@ export default function ClientRequestDetail() {
             </div>
           )}
 
-          {request.evidence?.length > 0 && <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm"><h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-sm"><Icon name="camera" className="text-blue-600" /> Evidencias del trabajo</h2><div className="grid grid-cols-3 sm:grid-cols-5 gap-2">{request.evidence.map((item, index) => <img key={index} src={item.startsWith("http") ? item : `/api/uploads/${item}`} alt={`Evidencia ${index + 1}`} className="w-full aspect-square rounded-xl object-cover border" />)}</div></div>}
+          {request.evidence?.length > 0 && <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm"><h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2 text-sm"><Icon name="camera" className="text-blue-600" /> Evidencias del trabajo</h2><div className="grid grid-cols-3 sm:grid-cols-5 gap-2">{request.evidence.map((item, index) => <ExpandableImage key={index} src={item} alt={`Evidencia del trabajo ${index + 1}`} className="w-full aspect-square rounded-xl border" />)}</div></div>}
 
           {request.statusHistory?.length > 0 && <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 shadow-sm"><h2 className="font-bold text-gray-900 mb-3 text-sm">Historial</h2><ol className="space-y-2">{request.statusHistory.map((item, index) => <li key={index} className="text-xs border-l-2 border-blue-300 pl-3"><strong className="capitalize">{item.status.replace(/_/g, " ")}</strong><span className="text-gray-500 ml-2">{new Date(item.at).toLocaleString("es-EC")}</span>{item.note && <p className="text-gray-500">{item.note}</p>}</li>)}</ol></div>}
         </div>

@@ -179,6 +179,11 @@ function ProviderCard({ provider, onApproved, onRejected, onRefresh }) {
             Documentos
           </h4>
           <div className="space-y-2">
+            {docEntries.length === 0 && (
+              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3" role="status">
+                Este proveedor no tiene documentos disponibles. Debe volver a cargarlos para continuar la verificaciÃ³n.
+              </p>
+            )}
             {docEntries.map(([key, val]) => {
               const url = getFileUrl(val);
               const isRejecting = rejectingDoc === key;
@@ -202,9 +207,10 @@ function ProviderCard({ provider, onApproved, onRejected, onRefresh }) {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`Abrir ${DOC_LABELS[key] || key} en una pestaÃ±a nueva`}
                           className="text-xs text-blue-600 hover:text-blue-800 underline font-medium"
                         >
-                          Ver archivo
+                          Ver archivo <span aria-hidden="true">â†—</span>
                         </a>
                       )}
                       <button

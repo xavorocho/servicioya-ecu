@@ -4,6 +4,7 @@ import api from "../../api/client";
 import { useToast } from "../../components/UI/Toast";
 import { Icon, Breadcrumb } from "../../components/UI/helpers";
 import Chat from "../../components/UI/Chat";
+import ExpandableImage from "../../components/UI/ExpandableImage";
 
 function StatusBadge({ status }) {
   const map = {
@@ -302,16 +303,7 @@ export default function ProviderWorkDetail() {
               <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Imágenes subidas</p>
               <div className="grid grid-cols-3 gap-2">
                 {images.map((img, idx) => (
-                  <div key={idx} className="aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
-                    <img
-                      src={typeof img === "string" ? (img.startsWith("http") ? img : `/api/uploads/${img}`) : img.url}
-                      alt={`Imagen ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                  </div>
+                  <ExpandableImage key={idx} src={img} alt={`Imagen enviada por el cliente ${idx + 1}`} className="aspect-square rounded-xl bg-gray-100 border border-gray-100" />
                 ))}
               </div>
             </div>
@@ -512,7 +504,7 @@ export default function ProviderWorkDetail() {
 
       {(request.status === "en_proceso" || request.evidence?.length > 0) && <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2"><Icon name="camera" className="text-blue-600" /> Evidencias del trabajo</h2>
-        {request.evidence?.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">{request.evidence.map((item, index) => <img key={index} src={item.startsWith("http") ? item : `/api/uploads/${item}`} alt={`Evidencia ${index + 1}`} className="w-full aspect-square rounded-xl object-cover border" />)}</div>}
+        {request.evidence?.length > 0 && <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">{request.evidence.map((item, index) => <ExpandableImage key={index} src={item} alt={`Evidencia del trabajo ${index + 1}`} className="w-full aspect-square rounded-xl border" />)}</div>}
         {request.status === "en_proceso" && <div><p className="text-xs text-gray-500 mb-2">Se requieren al menos 2 imágenes antes de finalizar.</p><div className="flex flex-col sm:flex-row gap-3"><input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={(event) => setEvidenceFiles(Array.from(event.target.files).slice(0, 10))} className="flex-1 text-sm" /><button type="button" onClick={uploadEvidence} disabled={uploadingEvidence || !evidenceFiles.length} className="btn btn-primary">{uploadingEvidence ? "Subiendo..." : "Guardar evidencia"}</button></div></div>}
       </div>}
 

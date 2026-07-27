@@ -7,9 +7,16 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const isProduction = process.env.NODE_ENV === "production";
+// Railway and other managed hosts do not always set NODE_ENV. The presence of
+// the complete Cloudinary configuration is the reliable signal that uploads
+// must use persistent storage instead of the instance's ephemeral disk.
+const hasCloudinaryConfig = Boolean(
+  process.env.CLOUDINARY_CLOUD_NAME &&
+  process.env.CLOUDINARY_API_KEY &&
+  process.env.CLOUDINARY_API_SECRET
+);
 
-if (isProduction) {
+if (hasCloudinaryConfig) {
   cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -19,11 +26,12 @@ if (isProduction) {
 
 const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: cloudinary.v2,
-  params: {
+  params: async () => ({
     folder: "servicioya/documentos",
+    resource_type: "auto",
     allowed_formats: ["pdf", "jpg", "jpeg", "png", "webp"],
-    public_id: () => uuidv4(),
-  },
+    public_id: uuidv4(),
+  }),
 });
 
 const localStorage = multer.diskStorage({
@@ -47,7 +55,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 export const upload = multer({
-  storage: isProduction ? cloudinaryStorage : localStorage,
+  storage: hasCloudinaryConfig ? cloudinaryStorage : localStorage,
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 },
 });
