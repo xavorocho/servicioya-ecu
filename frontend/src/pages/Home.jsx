@@ -93,7 +93,17 @@ export default function Home() {
           <Link to="/catalogo">Ver todos los servicios <Icon name="chevron-right" /></Link>
         </aside>
         <div className="sy-service-grid">
-          {CATEGORIES.map(([id, name, icon, detail], index) => <Link key={id} to={`/catalogo?category=${id}`} className={index === 0 ? "is-featured" : ""}><span className="sy-service-grid__number">0{index + 1}</span><span className="sy-service-grid__icon"><Icon name={icon} /></span><strong>{name}</strong><small>{detail}</small><Icon name="chevron-right" className="sy-service-grid__arrow" /></Link>)}
+          {CATEGORIES.map(([id, name, icon, detail], index) => (
+            <Link key={id} to={`/catalogo?category=${id}`} className={index === 0 ? "is-featured" : ""}>
+              <img className="sy-service-grid__photo" src={`/images/services/${id}.png`} alt="" loading="lazy" />
+              <span className="sy-service-grid__overlay" />
+              <span className="sy-service-grid__number">0{index + 1}</span>
+              <span className="sy-service-grid__icon"><Icon name={icon} /></span>
+              <strong>{name}</strong>
+              <small>{detail}</small>
+              <Icon name="chevron-right" className="sy-service-grid__arrow" />
+            </Link>
+          ))}
         </div>
       </section>
 
